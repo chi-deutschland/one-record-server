@@ -1,0 +1,131 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_test_deploy:
+    name: Build and deploy instances to GCP Cloud Run
+    runs-on: ubuntu-latest
+    env:
+      REGION: europe-west1
+      PATH_TEMPLATE: web/public/templates
+      PATH_STATIC: web/public/static/
+      CONTAINER_NAME: one-record-server
+    steps:
+
+      - uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Get tag
+        id: gettag
+        uses: WyriHaximus/github-action-get-previous-tag@1.0.0
+
+      - name: Set up Go 1.x
+        id: go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.18
+
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          version: '317.0.0'
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_APPLICATION_CREDENTIALS }}
+          export_default_credentials: true
+      - run: gcloud auth configure-docker
+
+      - name: Build Docker container
+        env:
+          TAG: ${{ steps.gettag.outputs.tag }}
+        run: |
+          docker build \
+           . --tag gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG
+
+      - name: Deploy Docker container
+        env:
+          TAG: ${{ steps.gettag.outputs.tag }}
+        run: docker push gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG
+
+      - name: Deploy Shipper service on Google Cloud Run
+        id: deploy_shipper
+        env:
+          TAG: ${{ steps.gettag.outputs.tag }}
+        run: |
+          gcloud run deploy ${{ secrets.SERVICE_SHIPPER }} \
+           --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
+           --memory="512Mi" \
+           --platform managed \
+           --region ${{ env.REGION }} \
+           --allow-unauthenticated \
+           --max-instances=1 \
+           --set-env-vars "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
+           --set-env-vars "PATH_STATIC=${{ env.PATH_STATIC }}" \
+           --set-env-vars "PATH_TEMPLATE=${{ env.PATH_TEMPLATE }}" \
+           --set-env-vars "AUTH_KEY=${{ secrets.AUTH_KEY }}" \
+           --set-env-vars "AUTH_VALUE=${{ secrets.AUTH_VALUE }}" \
+           --set-env-vars "SRV_ROLE=shipper"
+
+      - name: Deploy Forwarder service on Google Cloud Run
+        id: deploy_forwarder
+        env:
+          TAG: ${{ steps.gettag.outputs.tag }}
+        run: |
+          gcloud run deploy ${{ secrets.SERVICE_FORWARDER }} \
+           --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
+           --memory="512Mi" \
+           --platform managed \
+           --region ${{ env.REGION }} \
+           --allow-unauthenticated \
+           --max-instances=1 \
+           --set-env-vars "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
+           --set-env-vars "PATH_STATIC=${{ env.PATH_STATIC }}" \
+           --set-env-vars "PATH_TEMPLATE=${{ env.PATH_TEMPLATE }}" \
+           --set-env-vars "AUTH_KEY=${{ secrets.AUTH_KEY }}" \
+           --set-env-vars "AUTH_VALUE=${{ secrets.AUTH_VALUE }}" \
+           --set-env-vars "SRV_ROLE=forwarder"
+
+      - name: Deploy GHA service on Google Cloud Run
+        id: deploy_gha
+        env:
+          TAG: ${{ steps.gettag.outputs.tag }}
+        run: |
+          gcloud run deploy ${{ secrets.SERVICE_GHA }} \
+           --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
+           --memory="512Mi" \
+           --platform managed \
+           --region ${{ env.REGION }} \
+           --allow-unauthenticated \
+           --max-instances=1 \
+           --set-env-vars "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
+           --set-env-vars "PATH_STATIC=${{ env.PATH_STATIC }}" \
+           --set-env-vars "PATH_TEMPLATE=${{ env.PATH_TEMPLATE }}" \
+           --set-env-vars "AUTH_KEY=${{ secrets.AUTH_KEY }}" \
+           --set-env-vars "AUTH_VALUE=${{ secrets.AUTH_VALUE }}" \
+           --set-env-vars "SRV_ROLE=gha"
+
+      - name: Deploy Carrier service on Google Cloud Run
+        id: deploy_carrier
+        env:
+          TAG: ${{ steps.gettag.outputs.tag }}
+        run: |
+          gcloud run deploy ${{ secrets.SERVICE_CARRIER }} \
+           --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
+           --memory="512Mi" \
+           --platform managed \
+           --region ${{ env.REGION }} \
+           --allow-unauthenticated \
+           --max-instances=1 \
+           --set-env-vars "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
+           --set-env-vars "PATH_STATIC=${{ env.PATH_STATIC }}" \
+           --set-env-vars "PATH_TEMPLATE=${{ env.PATH_TEMPLATE }}" \
+           --set-env-vars "AUTH_KEY=${{ secrets.AUTH_KEY }}" \
+           --set-env-vars "AUTH_VALUE=${{ secrets.AUTH_VALUE }}" \
+           --set-env-vars "SRV_ROLE=carrier"
