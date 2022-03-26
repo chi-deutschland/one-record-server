@@ -34,7 +34,7 @@ jobs:
         run: go get -v -t -d ./...
 
       - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@main
+        uses: google-github-actions/setup-gcloud@v0
         with:
           version: '317.0.0'
           project_id: ${{ env.GCP_PROJECT_ID }}
