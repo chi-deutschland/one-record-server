@@ -55,7 +55,7 @@ jobs:
         run: docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG
 
       - name: Deploy Shipper service on Google Cloud Run
-        id: deployrun
+        id: deploy_shipper
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
@@ -76,7 +76,7 @@ jobs:
            --set-env-vars "SRV_ROLE=shipper"
 
       - name: Deploy Forwarder service on Google Cloud Run
-        id: deployrun
+        id: deploy_forwarder
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
@@ -97,7 +97,7 @@ jobs:
            --set-env-vars "SRV_ROLE=forwarder"
 
       - name: Deploy GHA service on Google Cloud Run
-        id: deployrun
+        id: deploy_gha
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
@@ -118,7 +118,7 @@ jobs:
            --set-env-vars "SRV_ROLE=gha"
 
       - name: Deploy Carrier service on Google Cloud Run
-        id: deployrun
+        id: deploy_carrier
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
