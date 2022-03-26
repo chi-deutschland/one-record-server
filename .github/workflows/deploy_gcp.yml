@@ -52,7 +52,7 @@ jobs:
       - name: Deploy Docker container
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
-        run: docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG
+        run: docker push gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG
 
       - name: Deploy Shipper service on Google Cloud Run
         id: deploy_shipper
