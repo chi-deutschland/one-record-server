@@ -1,4 +1,4 @@
-name: CI/CD on Push staging
+name: Deploy to GCP
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build_test_deploy:
-    name: Build and deploy instances
+    name: Build and deploy instances to GCP Cloud Run
     runs-on: ubuntu-latest
     env:
       REGION: europe-west1
@@ -64,20 +64,20 @@ jobs:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
           gcloud run deploy ${{ env.SHIPPER }} \
-           --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
-           --memory="512Mi" \
-           --platform managed \
-           --region ${{ env.REGION }} \
-           --allow-unauthenticated \
-           --max-instances=1 \
-           --set-env-vars "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
-           --set-env-vars "AUTH_NAME_KEY=${{ secrets.AUTH_NAME_KEY }}" \
-           --set-env-vars "AUTH_NAME_VALUE=${{ secrets.AUTH_NAME_VALUE }}" \
-           --set-env-vars "AUTH_TOKEN_KEY=${{ secrets.AUTH_TOKEN_KEY }}" \
-           --set-env-vars "AUTH_TOKEN_VALUE=${{ secrets.AUTH_TOKEN_VALUE }}" \
-           --set-env-vars "PATH_STATIC=${{ env.PATH_STATIC }}" \
-           --set-env-vars "PATH_TEMPLATE=${{ env.PATH_TEMPLATE }}" \
-           --set-env-vars "SRV_ROLE=shipper"
+             --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
+             --memory="512Mi" \
+             --platform managed \
+             --region ${{ env.REGION }} \
+             --allow-unauthenticated \
+             --max-instances=1 \
+             --set-env-vars "PROJECT_ID=${{ secrets.PROJECT_ID }}" \
+             --set-env-vars "AUTH_NAME_KEY=${{ secrets.AUTH_NAME_KEY }}" \
+             --set-env-vars "AUTH_NAME_VALUE=${{ secrets.AUTH_NAME_VALUE }}" \
+             --set-env-vars "AUTH_TOKEN_KEY=${{ secrets.AUTH_TOKEN_KEY }}" \
+             --set-env-vars "AUTH_TOKEN_VALUE=${{ secrets.AUTH_TOKEN_VALUE }}" \
+             --set-env-vars "PATH_STATIC=${{ env.PATH_STATIC }}" \
+             --set-env-vars "PATH_TEMPLATE=${{ env.PATH_TEMPLATE }}" \
+             --set-env-vars "SRV_ROLE=shipper"
 
       - name: Deploy Forwarder service on Google Cloud Run
         id: deploy_forwarder
