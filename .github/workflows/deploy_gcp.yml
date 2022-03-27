@@ -13,10 +13,6 @@ jobs:
       PATH_TEMPLATE: web/public/templates
       PATH_STATIC: web/public/static/
       CONTAINER_NAME: one-record-server
-      SHIPPER: shipper
-      FORWARDER: forwarder
-      GHA: gha
-      CARRIER: carrier
     steps:
 
       - uses: actions/checkout@v2.2.0
