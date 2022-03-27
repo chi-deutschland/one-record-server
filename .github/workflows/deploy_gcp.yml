@@ -13,6 +13,10 @@ jobs:
       PATH_TEMPLATE: web/public/templates
       PATH_STATIC: web/public/static/
       CONTAINER_NAME: one-record-server
+      SHIPPER: shipper
+      FORWARDER: forwarder
+      GHA: gha
+      CARRIER: carrier
     steps:
 
       - uses: actions/checkout@v2.2.0
@@ -59,7 +63,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secrets.SERVICE_SHIPPER }} \
+          gcloud run deploy ${{ env.SHIPPER }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
@@ -80,7 +84,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secrets.SERVICE_FORWARDER }} \
+          gcloud run deploy ${{ env.FORWARDER }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
@@ -101,7 +105,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secrets.SERVICE_GHA }} \
+          gcloud run deploy ${{ env.GHA }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
@@ -122,7 +126,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secrets.SERVICE_CARRIER }} \
+          gcloud run deploy ${{ env.CARRIER }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
