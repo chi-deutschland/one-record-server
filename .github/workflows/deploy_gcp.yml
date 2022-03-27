@@ -63,7 +63,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secret.SERVICE_SHIPPER }} \
+          gcloud run deploy ${{ secrets.SERVICE_SHIPPER }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
@@ -85,7 +85,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secret.SERVICE_FORWARDER }} \
+          gcloud run deploy ${{ secrets.SERVICE_FORWARDER }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
@@ -107,7 +107,7 @@ jobs:
         env:
           TAG: ${{ steps.gettag.outputs.tag }}
         run: |
-          gcloud run deploy ${{ secret.SERVICE_GHA }} \
+          gcloud run deploy ${{ secrets.SERVICE_GHA }} \
            --image gcr.io/${{ secrets.PROJECT_ID }}/${{ env.CONTAINER_NAME }}:$TAG \
            --memory="512Mi" \
            --platform managed \
