@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/style.css">
+        <title>{{template "title"}}</title>
+    </head>
+
+    <body>
+    <div class="h-full
+                w-full
+                absolute
+                bg-gray-100">
+        <nav class="w-full
+                    mx-auto
+                    bg-white
+                    shadow">
+            <div class="container
+                        px-6
+                        justify-between
+                        h-16
+                        flex
+                        items-center
+                        lg:items-stretch
+                        mx-auto">
+                <div class="h-full
+                            flex
+                            items-center">
+                    <div aria-label="Home"
+                         role="img"
+                         class="mr-10
+                                flex
+                                items-center">
+                        <h3 class="text-base
+                                   text-gray-800
+                                   font-bold
+                                   tracking-normal
+                                   leading-tight
+                                   ml-3
+                                   block">
+                            One Record Server
+                        </h3>
+                    </div>
+                    <ul class="pr-12
+                               flex
+                               items-center
+                               h-full">
+                        <li class="c-sidebar-list-style
+                                   text-indigo-700
+                                   border-b-2
+                                   border-indigo-700">
+                            <a href="javascript:void(0)">Company</a>
+                        </li>
+                        <li class="c-sidebar-list-style
+                                   text-gray-800
+                                   mx-10">
+                            <a href="javascript:void(0)">Piece</a>
+                        </li>
+                        <li class="c-sidebar-list-style
+                                   text-gray-800
+                                   mr-10">
+                            <a href="javascript:void(0)">Shipment</a>
+                        </li>
+                        <li class="c-sidebar-list-style
+                                   text-gray-800">
+                            <a href="javascript:void(0)">Air Waybill</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {{template "content"}}
+
+        </div>
+    </body>
+</html>

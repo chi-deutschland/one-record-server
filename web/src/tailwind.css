@@ -2,7 +2,16 @@
 @tailwind components;
 
 @layer components {
-
+    .c-sidebar-list-style {
+        @apply
+        hover:text-indigo-700
+        cursor-pointer
+        h-full
+        flex
+        items-center
+        text-sm
+        tracking-normal
+    }
 }
 
 @tailwind utilities;

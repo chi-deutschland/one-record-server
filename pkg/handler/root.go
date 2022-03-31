@@ -19,6 +19,7 @@ type RootHandler struct {
 func (h *RootHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	tmp, err := template.ParseFiles(
+		fmt.Sprintf("%s/layout.html", h.Service.Env.Path.Template),
 		fmt.Sprintf("%s/root.html", h.Service.Env.Path.Template))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
