@@ -22,6 +22,11 @@ func (s *ServiceBuilder) WithGcpSecretManager(secretManager service.SecretManage
 	return s
 }
 
+func (s *ServiceBuilder) WithGcpFirestore(firestore service.DBService) *ServiceBuilder {
+	s.service.DBService = firestore
+	return s
+}
+
 func (s *ServiceBuilder) Build() *service.Service {
 	return s.service
 }
