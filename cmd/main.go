@@ -31,9 +31,16 @@ func main() {
 	if err != nil {
 		logrus.Panicf("can`t initialize GCP Secret Manager service: %s", err)
 	}
+
+	dbService, err := gcp.NewFirestoreService()
+	if err != nil {
+		logrus.Panicf("can`t initialize GCP Firestore service: %s", err)
+	}
+
 	svc := builder.NewServiceBuilder().
 		WithEnv(envVars).
 		WithGcpSecretManager(secretManager).
+		WithGcpFirestore(dbService).
 		Build()
 
 	headerAuth, err := utils.NewAuthHeaderSecretValues(svc)
@@ -59,6 +66,10 @@ func main() {
 	// Define HandlerFunc for all endpoints here
 	rootHandler := handler.NewRootHandler(svc)
 	router.HandleFunc("/", rootHandler.Handler).
+		Methods(http.MethodGet, http.MethodOptions)
+
+	companyHandler := handler.NewCompanyHandler(svc)
+	router.HandleFunc("/{company}", companyHandler.Handler).
 		Methods(http.MethodGet, http.MethodOptions)
 
 	srv := &http.Server{
