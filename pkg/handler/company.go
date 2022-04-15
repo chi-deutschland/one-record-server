@@ -27,8 +27,8 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	})
 	logger.Infof("Received request with params %#v", r.URL.Path)
 	tmp, err := template.ParseFiles(
-		fmt.Sprintf("%s/layout.html", h.Service.Env.Path.Template),
-		fmt.Sprintf("%s/root.html", h.Service.Env.Path.Template))
+		fmt.Sprintf("%s/layout_iframe.html", h.Service.Env.Path.Template),
+		fmt.Sprintf("%s/company.html", h.Service.Env.Path.Template))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
