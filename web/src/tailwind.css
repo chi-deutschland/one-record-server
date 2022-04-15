@@ -12,6 +12,15 @@
         text-sm
         tracking-normal
     }
+    .c-table-data-style {
+        @apply
+        border-y
+        border-gray-200
+        align-text-top
+        text-left
+        px-5
+        py-3
+    }
 }
 
 @tailwind utilities;
