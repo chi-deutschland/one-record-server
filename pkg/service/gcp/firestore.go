@@ -11,14 +11,17 @@ import (
 type FirestoreService struct {
 }
 
-func (f *FirestoreService) GetCompanies(projectID string) ([]model.Company, error) {
+func (f *FirestoreService) GetCompanies(projectID, role string) ([]model.Company, error) {
 	var companies []model.Company
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, projectID)
 	if err != nil {
 		return companies, err
 	}
-	iter := client.Collection("companies").Documents(ctx)
+	defer client.Close()
+	iter := client.Collection("companies").
+		Where("role", "==", role).
+		Documents(ctx)
 	for {
 		var company model.Company
 
