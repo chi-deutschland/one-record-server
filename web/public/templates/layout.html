@@ -6,7 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="static/style.css">
-        <title>{{template "title"}}</title>
+        <title>{{template "title" . }}</title>
     </head>
 
     <body>
@@ -49,23 +49,25 @@
                                items-center
                                h-full">
                         <li class="c-sidebar-list-style
-                                   text-indigo-700
-                                   border-b-2
-                                   border-indigo-700">
+                                   text-gray-800"
+                            id="nav_company">
                             <a href="javascript:void(0)">Company</a>
                         </li>
                         <li class="c-sidebar-list-style
                                    text-gray-800
-                                   mx-10">
+                                   mx-10"
+                            id="nav_piece">
                             <a href="javascript:void(0)">Piece</a>
                         </li>
                         <li class="c-sidebar-list-style
                                    text-gray-800
-                                   mr-10">
+                                   mr-10"
+                            id="nav_shipment">
                             <a href="javascript:void(0)">Shipment</a>
                         </li>
                         <li class="c-sidebar-list-style
-                                   text-gray-800">
+                                   text-gray-800"
+                            id="nav_waybill">
                             <a href="javascript:void(0)">Air Waybill</a>
                         </li>
                     </ul>
@@ -73,7 +75,7 @@
             </div>
         </nav>
 
-        {{template "content"}}
+        {{template "content" . }}
 
         </div>
     </body>
