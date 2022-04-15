@@ -10,7 +10,8 @@
     </head>
 
     <body>
-    <div class="h-full
+    <div id="mainContent"
+         class="h-full
                 w-full
                 absolute
                 bg-gray-100">
@@ -78,5 +79,8 @@
         {{template "content" . }}
 
         </div>
+
+    {{template "modal" . }}
+
     </body>
 </html>
