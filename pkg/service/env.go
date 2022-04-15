@@ -11,4 +11,5 @@ type Env struct {
 	}
 	ServerRole string `env:"SRV_ROLE"`
 	ProjectId  string `env:"PROJECT_ID"`
+	Host       string `env:"HOST"`
 }

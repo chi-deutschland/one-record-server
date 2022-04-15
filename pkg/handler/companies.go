@@ -13,6 +13,7 @@ import (
 
 type PageData struct {
 	Title     string
+	Host      string
 	Companies []model.Company
 }
 
@@ -41,7 +42,10 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	logger.Debugf("Fetched companies: %#v", companies)
-	pageData := PageData{Title: "One Record Server - Companies", Companies: companies}
+	pageData := PageData{
+		Title:     "One Record Server - Companies",
+		Host:      h.Service.Env.Host,
+		Companies: companies}
 
 	err = tmp.Execute(w, pageData)
 	if err != nil {
