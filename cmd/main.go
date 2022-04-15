@@ -64,7 +64,7 @@ func main() {
 	router.Use(mux.CORSMethodMiddleware(router))
 
 	// Define HandlerFunc for all endpoints here
-	rootHandler := handler.NewRootHandler(svc)
+	rootHandler := handler.NewCompaniesHandler(svc)
 	router.HandleFunc("/", rootHandler.Handler).
 		Methods(http.MethodGet, http.MethodOptions)
 

@@ -16,11 +16,11 @@ type PageData struct {
 	Companies []model.Company
 }
 
-type RootHandler struct {
+type CompaniesHandler struct {
 	Service *service.Service
 }
 
-func (h *RootHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	logger := logrus.WithFields(logrus.Fields{
 		"role":       h.Service.Env.ServerRole,
@@ -29,13 +29,13 @@ func (h *RootHandler) Handler(w http.ResponseWriter, r *http.Request) {
 
 	tmp, err := template.ParseFiles(
 		fmt.Sprintf("%s/layout.html", h.Service.Env.Path.Template),
-		fmt.Sprintf("%s/root.html", h.Service.Env.Path.Template))
+		fmt.Sprintf("%s/companies.html", h.Service.Env.Path.Template))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	logger.Debug("Try to fetch companies from DB")
-	companies, err := h.Service.DBService.GetCompanies(h.Service.Env.ProjectId)
+	companies, err := h.Service.DBService.GetCompanies(h.Service.Env.ProjectId, h.Service.Env.ServerRole)
 	if err != nil {
 		// TODO render error message with retry option
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -49,8 +49,8 @@ func (h *RootHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewRootHandler(svc *service.Service) *RootHandler {
-	return &RootHandler{Service: svc}
+func NewCompaniesHandler(svc *service.Service) *CompaniesHandler {
+	return &CompaniesHandler{Service: svc}
 }
 
-var _ onerecordhttp.ContextHandler = (*RootHandler)(nil)
+var _ onerecordhttp.ContextHandler = (*CompaniesHandler)(nil)
