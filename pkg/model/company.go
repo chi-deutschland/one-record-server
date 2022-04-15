@@ -5,4 +5,5 @@ type Company struct {
 	Name   string        `firestore:"name" json:"name"`
 	Type   string        `firestore:"type" json:"type"`
 	Branch CompanyBranch `firestore:"branch" json:"branch"`
+	Role   string        `firestore:"role" json:"-"`
 }
