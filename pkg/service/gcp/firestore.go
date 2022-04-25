@@ -11,7 +11,14 @@ import (
 type FirestoreService struct {
 }
 
-func (f *FirestoreService) GetCompanies(projectID, role string) ([]model.Company, error) {
+func (f *FirestoreService) GetCompanies(
+	projectID,
+	role string,
+) (
+	[]model.Company,
+	error,
+) {
+
 	var companies []model.Company
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, projectID)
@@ -40,6 +47,35 @@ func (f *FirestoreService) GetCompanies(projectID, role string) ([]model.Company
 	}
 
 	return companies, nil
+}
+
+func (f *FirestoreService) GetCompany(
+	projectID,
+	companyID string,
+) (
+	model.Company,
+	error,
+) {
+
+	var company model.Company
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return company, err
+	}
+	defer client.Close()
+	doc, err := client.Collection("companies").
+		Doc(companyID).
+		Get(ctx)
+	if err != nil {
+		return company, err
+	}
+
+	if err := doc.DataTo(&company); err != nil {
+		return company, err
+	}
+
+	return company, nil
 }
 
 func NewFirestoreService() (*FirestoreService, error) {

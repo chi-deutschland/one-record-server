@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
@@ -11,8 +12,9 @@ import (
 )
 
 type CompanyData struct {
-	Title     string
-	CompanyID string
+	Title   string
+	Host    string
+	Company model.Company
 }
 
 type CompanyHandler struct {
@@ -32,7 +34,22 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	err = tmp.Execute(w, PageData{Title: "One Record Server"})
+
+	companyID := r.URL.Path[1:]
+	logger.Debug("Try to fetch companies from DB")
+	company, err := h.Service.DBService.GetCompany(
+		h.Service.Env.ProjectId,
+		companyID)
+	if err != nil {
+		// TODO render error message with retry option
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	logger.Debugf("Fetched company: %#v", company)
+
+	err = tmp.Execute(w, CompanyData{
+		Title:   "One Record Server",
+		Host:    h.Service.Env.Host,
+		Company: company})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
