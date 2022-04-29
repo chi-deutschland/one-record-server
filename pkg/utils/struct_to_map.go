@@ -1,0 +1,97 @@
+package utils
+
+// https://gist.github.com/roboncode/d8592d3a6ca3704a92ff2c35baf8456a
+
+import (
+	"reflect"
+	"strings"
+	"time"
+	"fmt"
+
+	firestore "cloud.google.com/go/firestore"
+)
+
+const (
+	tagName      = "firestore"
+	tagOmitEmpty = "omitempty"
+	tagId		 = "id"
+	delimiter    = ","
+)
+
+type FirestoreMap map[string]interface{}
+
+func ToFirestoreMap(value interface{}) FirestoreMap {
+	var result = parseData(value)
+	return result.(FirestoreMap)
+}
+
+func isZeroOfUnderlyingType(x interface{}) bool {
+	return reflect.DeepEqual(x, reflect.Zero(reflect.TypeOf(x)).Interface())
+}
+
+func parseData(value interface{}) interface{} {
+	if value == nil {
+		return nil
+	}
+	var firestoreMap = FirestoreMap{}
+	var tag string
+	//var value interface{}
+	var fieldCount int
+	var val = reflect.ValueOf(value)
+
+	switch value.(type) {
+	case time.Time, *time.Time:
+		return value
+	}
+
+	switch val.Kind() {
+	case reflect.Map:
+		for _, key := range val.MapKeys() {
+			val := val.MapIndex(key)
+			firestoreMap[key.String()] = parseData(val.Interface())
+		}
+		return firestoreMap
+	case reflect.Ptr:
+		if val.IsNil() {
+			return nil
+		}
+		fieldCount = val.Elem().NumField()
+		for i := 0; i < fieldCount; i++ {
+			tag = val.Elem().Type().Field(i).Tag.Get(tagName)
+			value = val.Elem().Field(i).Interface()
+			setValue(firestoreMap, tag, value)
+		}
+		return firestoreMap
+	case reflect.Struct, reflect.Interface:
+		fieldCount = val.NumField()
+		for i := 0; i < fieldCount; i++ {
+			tag = val.Type().Field(i).Tag.Get(tagName)
+			value = val.Field(i).Interface()
+			setValue(firestoreMap, tag, value)
+		}
+		return firestoreMap
+	}
+
+	if value == "DELETE" {
+		return firestore.Delete
+	}
+
+	return value
+}
+
+func setValue(firestoreMap FirestoreMap, tag string, value interface{}) {
+	fmt.Println(tag)
+
+	if tag == "" || tag == "-" || value == nil || strings.HasPrefix(tag, tagId){
+		return
+	}
+
+	tagValues := strings.Split(tag, delimiter)
+
+	if strings.Contains(tag, tagOmitEmpty) {
+		if isZeroOfUnderlyingType(value) {
+			return
+		}
+	}
+	firestoreMap[tagValues[0]] = parseData(value)
+}

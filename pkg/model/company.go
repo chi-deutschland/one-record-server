@@ -2,8 +2,8 @@ package model
 
 type Company struct {
 	ID     string        `firestore:"id" json:"id,omitempty"`
-	Name   string        `firestore:"name" json:"name"`
-	Type   string        `firestore:"type" json:"type"`
-	Branch CompanyBranch `firestore:"branch" json:"branch"`
-	Role   string        `firestore:"role" json:"-"`
+	Name   string        `firestore:"name,omitempty" json:"name,omitempty"`
+	Type   string        `firestore:"type,omitempty" json:"type,omitempty"`
+	Branch CompanyBranch `firestore:"branch,omitempty" json:"branch,omitempty"`
+	Role   string        `firestore:"role,omitempty" json:"role,omitempty"`
 }

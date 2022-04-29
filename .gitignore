@@ -16,3 +16,6 @@
 web/node_modules/
 .idea/
 terraform/
+
+*.env
+*.ps1

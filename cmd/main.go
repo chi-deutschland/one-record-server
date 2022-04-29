@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"fmt"
+	// "github.com/joho/godotenv"
 )
 
 var envVars service.Env
@@ -27,6 +29,8 @@ func init() {
 }
 
 func main() {
+	// godotenv.Load("one_record.env")
+	// fmt.Println("SRV_ROLE:", os.Getenv("SRV_ROLE"))
 	secretManager, err := gcp.NewSecretManagerService()
 	if err != nil {
 		logrus.Panicf("can`t initialize GCP Secret Manager service: %s", err)
@@ -42,6 +46,8 @@ func main() {
 		WithGcpSecretManager(secretManager).
 		WithGcpFirestore(dbService).
 		Build()
+
+	fmt.Printf("v%+v", svc)
 
 	headerAuth, err := utils.NewAuthHeaderSecretValues(svc)
 	if err != nil {
@@ -66,11 +72,22 @@ func main() {
 	// Define HandlerFunc for all endpoints here
 	rootHandler := handler.NewCompaniesHandler(svc)
 	router.HandleFunc("/", rootHandler.Handler).
-		Methods(http.MethodGet, http.MethodOptions)
+		Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	companyHandler := handler.NewCompanyHandler(svc)
 	router.HandleFunc("/{company}", companyHandler.Handler).
-		Methods(http.MethodGet, http.MethodOptions)
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
+	piecesHandler := handler.NewPiecesHandler(svc)
+	router.HandleFunc("/{company}/pieces", piecesHandler.Handler).
+	Methods(http.MethodGet, http.MethodOptions)
+
+	pieceHandler := handler.NewPieceHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}", pieceHandler.Handler).
+	Methods(http.MethodGet, http.MethodOptions)
+
+	// router.HandleFunc("/{company}/pieces", pieceHandler.PostHandler).
+	// Methods(http.MethodGet, http.MethodOptions)
 
 	srv := &http.Server{
 		Handler:      router,

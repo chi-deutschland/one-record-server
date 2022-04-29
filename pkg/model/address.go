@@ -2,8 +2,8 @@ package model
 
 type Address struct {
 	ID         string `firestore:"id" json:"id,omitempty"`
-	Street     string `firestore:"street" json:"street"`
-	PostalCode string `firestore:"postal_code" json:"postal_code"`
-	CityName   string `firestore:"city_name" json:"city_name"`
-	Country    string `firestore:"country" json:"country"`
+	Street     string `firestore:"street,omitempty" json:"street,omitempty"`
+	PostalCode string `firestore:"postal_code,omitempty" json:"postal_code,omitempty"`
+	CityName   string `firestore:"city_name,omitempty" json:"city_name,omitempty"`
+	Country    string `firestore:"country,omitempty" json:"country,omitempty"`
 }

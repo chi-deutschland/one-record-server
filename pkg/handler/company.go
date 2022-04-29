@@ -1,14 +1,13 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"html/template"
 	"net/http"
+    "encoding/json"
 )
 
 type CompanyData struct {
@@ -22,36 +21,64 @@ type CompanyHandler struct {
 }
 
 func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	logger := logrus.WithFields(logrus.Fields{
-		"role":       h.Service.Env.ServerRole,
-		"request_id": uuid.New().String(),
-	})
-	logger.Infof("Received request with params %#v", r.URL.Path)
-	tmp, err := template.ParseFiles(
-		fmt.Sprintf("%s/layout_iframe.html", h.Service.Env.Path.Template),
-		fmt.Sprintf("%s/company.html", h.Service.Env.Path.Template))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	switch r.Method {
+	case "GET":
+		w.Header().Set("Content-Type", "application/json")
+		logger := logrus.WithFields(logrus.Fields{
+			"role":       h.Service.Env.ServerRole,
+			"request_id": uuid.New().String(),
+		})
+		logger.Infoln("GET COMPANY")
+		logger.Infof("Received request with params %#v", r.URL.Path)
 
-	companyID := r.URL.Path[1:]
-	logger.Debug("Try to fetch companies from DB")
-	company, err := h.Service.DBService.GetCompany(
-		h.Service.Env.ProjectId,
-		companyID)
-	if err != nil {
-		// TODO render error message with retry option
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	logger.Debugf("Fetched company: %#v", company)
+		companyID := r.URL.Path[1:]
+		logger.Debug("Try to fetch companies from DB")
+		company, err := h.Service.DBService.GetCompany(
+			h.Service.Env.ProjectId,
+			companyID)
+		if err != nil {
+			// TODO render error message with retry option
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			logger.Debugf("Fetched company: %#v", company)
+			json.NewEncoder(w).Encode(company)
+		}
 
-	err = tmp.Execute(w, CompanyData{
-		Title:   "One Record Server",
-		Host:    h.Service.Env.Host,
-		Company: company})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	case "PATCH":
+		logger := logrus.WithFields(logrus.Fields{
+			"role":       h.Service.Env.ServerRole,
+			"request_id": uuid.New().String(),
+		})
+		logger.Infoln("PATCH COMPANY")
+		logger.Infof("Received request with params %#v", r.URL.Path)
+
+		decoder := json.NewDecoder(r.Body)
+		var company model.Company
+		err := decoder.Decode(&company)
+		if err != nil {
+			// TODO render error message with retry option
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			companyID := r.URL.Path[1:]
+			logger.Debugln(companyID)
+			logger.Debugf("company: %#v", company)
+			h.Service.DBService.UpdateCompany(
+			h.Service.Env.ProjectId,
+			companyID, company)
+		}
+
+	case "DELETE":
+		logger := logrus.WithFields(logrus.Fields{
+			"role":       h.Service.Env.ServerRole,
+			"request_id": uuid.New().String(),
+		})
+		logger.Infoln("DELETE COMPANY")
+		logger.Infof("Received request with params %#v", r.URL.Path)
+
+		companyID := r.URL.Path[1:]
+		h.Service.DBService.DeleteCompany(
+			h.Service.Env.ProjectId,
+			companyID)
 	}
 }
 
