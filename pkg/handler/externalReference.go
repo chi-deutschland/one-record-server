@@ -12,17 +12,17 @@ import (
 	"io"
 )
 
-type EventData struct {
+type ExternalReferenceData struct {
 	Title   string
 	Host    string
-	Event model.Event
+	ExternalReference model.ExternalReference
 }
 
-type EventHandler struct {
+type ExternalReferenceHandler struct {
 	Service *service.Service
 }
 
-func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json")
@@ -36,18 +36,18 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		split_url := strings.Split(r.URL.Path[1:], "/")
 		companyID := split_url[0]
 		pieceID := split_url[2]
-		eventID := split_url[4]
-		event, err := h.Service.DBService.GetEvent(
+		externalReferenceID := split_url[4]
+		externalReference, err := h.Service.DBService.GetExternalReference(
 			h.Service.Env.ProjectId,
 			companyID,
 			pieceID,
-			eventID)
+			externalReferenceID)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched event: %#v", event)
-			json.NewEncoder(w).Encode(event)
+			logger.Debugf("Fetched externalReference: %#v", externalReference)
+			json.NewEncoder(w).Encode(externalReference)
 		}
 
 	case "PATCH":
@@ -59,8 +59,8 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
-		var event model.Event
-		err := decoder.Decode(&event)
+		var externalReference model.ExternalReference
+		err := decoder.Decode(&externalReference)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -68,12 +68,12 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			split_url := strings.Split(r.URL.Path[1:], "/")
 			companyID := split_url[0]
 			pieceID := split_url[2]
-			eventID := split_url[4]
-			logger.Debugln(companyID, pieceID, eventID)
-			logger.Debugf("event: %#v", event)
-			h.Service.DBService.UpdateEvent(
+			externalReferenceID := split_url[4]
+			logger.Debugln(companyID, pieceID, externalReferenceID)
+			logger.Debugf("externalReference: %#v", externalReference)
+			h.Service.DBService.UpdateExternalReference(
 			h.Service.Env.ProjectId,
-			companyID, pieceID, eventID, event)
+			companyID, pieceID, externalReferenceID, externalReference)
 		}
 
 	case "DELETE":
@@ -87,30 +87,30 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		split_url := strings.Split(r.URL.Path[1:], "/")
 		companyID := split_url[0]
 		pieceID := split_url[2]
-		eventID := split_url[4]
+		externalReferenceID := split_url[4]
 		decoder := json.NewDecoder(r.Body)
 		var body map[string][]string
 		err := decoder.Decode(&body)
 		switch {
 		case err == io.EOF:
-			h.Service.DBService.DeleteEvent(
+			h.Service.DBService.DeleteExternalReference(
 				h.Service.Env.ProjectId,
-				companyID, pieceID, eventID)
+				companyID, pieceID, externalReferenceID)
 		case err != nil:
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			if fields, ok := body["fields"]; ok {
-				h.Service.DBService.DeleteEventFields(
+				h.Service.DBService.DeleteExternalReferenceFields(
 				h.Service.Env.ProjectId,
-				companyID, pieceID, eventID, fields)
+				companyID, pieceID, externalReferenceID, fields)
 			}
 		}
 	}
 }
 
-func NewEventHandler(svc *service.Service) *EventHandler {
-	return &EventHandler{Service: svc}
+func NewExternalReferenceHandler(svc *service.Service) *ExternalReferenceHandler {
+	return &ExternalReferenceHandler{Service: svc}
 }
 
-var _ onerecordhttp.ContextHandler = (*EventHandler)(nil)
+var _ onerecordhttp.ContextHandler = (*ExternalReferenceHandler)(nil)

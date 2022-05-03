@@ -6,9 +6,6 @@ import (
 	"reflect"
 	"strings"
 	"time"
-	"fmt"
-
-	firestore "cloud.google.com/go/firestore"
 )
 
 const (
@@ -72,16 +69,10 @@ func parseData(value interface{}) interface{} {
 		return firestoreMap
 	}
 
-	if value == "DELETE" {
-		return firestore.Delete
-	}
-
 	return value
 }
 
 func setValue(firestoreMap FirestoreMap, tag string, value interface{}) {
-	fmt.Println(tag)
-
 	if tag == "" || tag == "-" || value == nil || strings.HasPrefix(tag, tagId){
 		return
 	}

@@ -80,14 +80,27 @@ func main() {
 
 	piecesHandler := handler.NewPiecesHandler(svc)
 	router.HandleFunc("/{company}/pieces", piecesHandler.Handler).
-	Methods(http.MethodGet, http.MethodOptions)
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	pieceHandler := handler.NewPieceHandler(svc)
 	router.HandleFunc("/{company}/pieces/{piece}", pieceHandler.Handler).
-	Methods(http.MethodGet, http.MethodOptions)
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
-	// router.HandleFunc("/{company}/pieces", pieceHandler.PostHandler).
-	// Methods(http.MethodGet, http.MethodOptions)
+	eventsHandler := handler.NewEventsHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/events", eventsHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+
+	eventHandler := handler.NewEventHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/events/{event}", eventHandler.Handler).
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
+	externalReferencesHandler := handler.NewExternalReferencesHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/externalReferences", externalReferencesHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+
+	externalReferenceHandler := handler.NewExternalReferenceHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/externalReferences/{externalReference}", externalReferenceHandler.Handler).
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	srv := &http.Server{
 		Handler:      router,

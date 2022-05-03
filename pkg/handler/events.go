@@ -11,17 +11,17 @@ import (
     "encoding/json"
 )
 
-type PiecesData struct {
+type EventsData struct {
 	Title   string
 	Host    string
-	Pieces []model.Piece
+	Events []model.Event
 }
 
-type PiecesHandler struct {
+type EventsHandler struct {
 	Service *service.Service
 }
 
-func (h *PiecesHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *EventsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json+ld")
@@ -30,17 +30,19 @@ func (h *PiecesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"request_id": uuid.New().String(),
 		})
 
-		logger.Debugln("\nGET PIECES")
-		companyID := strings.Split(r.URL.Path[1:], "/")[0]
-		pieces, err := h.Service.DBService.GetPieces(
+		logger.Debugln("\nGET EVENTS")
+		split_url := strings.Split(r.URL.Path[1:], "/")
+		companyID := split_url[0]
+		pieceID := split_url[2]
+		events, err := h.Service.DBService.GetEvents(
 		h.Service.Env.ProjectId,
-		companyID)
+		companyID, pieceID)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched pieces: %#v", pieces)
-			json.NewEncoder(w).Encode(pieces)
+			logger.Debugf("Fetched events: %#v", events)
+			json.NewEncoder(w).Encode(events)
 		}
 
 	case "POST":
@@ -49,32 +51,34 @@ func (h *PiecesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nPOST PIECE")
+		logger.Debugln("\nPOST EVENTS")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
-		var piece model.Piece
-		err := decoder.Decode(&piece)
+		var event model.Event
+		err := decoder.Decode(&event)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			companyID := strings.Split(r.URL.Path[1:], "/")[0]
-			var pieceID, err = h.Service.DBService.AddPiece(
-			h.Service.Env.ProjectId, companyID, piece)
+			split_url := strings.Split(r.URL.Path[1:], "/")
+			companyID := split_url[0]
+			pieceID := split_url[2]
+			var eventID, err = h.Service.DBService.AddEvent(
+			h.Service.Env.ProjectId, companyID, pieceID, event)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
-				json.NewEncoder(w).Encode(map[string]string{"id": pieceID})
+				json.NewEncoder(w).Encode(map[string]string{"id": eventID})
 				w.WriteHeader(http.StatusCreated)
 			}
 		}
 	}
 }
 
-func NewPiecesHandler(svc *service.Service) *PiecesHandler {
-	return &PiecesHandler{Service: svc}
+func NewEventsHandler(svc *service.Service) *EventsHandler {
+	return &EventsHandler{Service: svc}
 }
 
-var _ onerecordhttp.ContextHandler = (*PiecesHandler)(nil)
+var _ onerecordhttp.ContextHandler = (*EventsHandler)(nil)

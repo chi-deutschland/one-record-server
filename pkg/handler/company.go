@@ -1,13 +1,15 @@
 package handler
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"net/http"
-    "encoding/json"
 )
 
 type CompanyData struct {
@@ -28,11 +30,10 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("GET COMPANY")
+		logger.Debugln("\nGET COMPANY")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		companyID := r.URL.Path[1:]
-		logger.Debug("Try to fetch companies from DB")
 		company, err := h.Service.DBService.GetCompany(
 			h.Service.Env.ProjectId,
 			companyID)
@@ -49,7 +50,7 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("PATCH COMPANY")
+		logger.Infoln("\nPATCH COMPANY")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -72,13 +73,28 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("DELETE COMPANY")
+		logger.Infoln("\nDELETE COMPANY")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		companyID := r.URL.Path[1:]
-		h.Service.DBService.DeleteCompany(
-			h.Service.Env.ProjectId,
-			companyID)
+		decoder := json.NewDecoder(r.Body)
+		var body map[string][]string
+		err := decoder.Decode(&body)
+		switch {
+		case err == io.EOF:
+			h.Service.DBService.DeleteCompany(
+				h.Service.Env.ProjectId,
+				companyID)
+		case err != nil:
+			// TODO render error message with retry option
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		default:
+			if fields, ok := body["fields"]; ok {
+				h.Service.DBService.DeleteCompanyFields(
+				h.Service.Env.ProjectId,
+				companyID, fields)
+			}
+		}
 	}
 }
 

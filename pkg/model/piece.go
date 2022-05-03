@@ -2,7 +2,10 @@ package model
 
 type Piece struct {
 	ID							string							`firestore:"id" json:"id,omitempty"`
-	// LogisticsObject
+	CompanyIdentifier	string		`firestore:"companyIdentifier,omitempty" json:"companyIdentifier,omitempty"`
+	Events				[]Event		`firestore:"events,omitempty" json:"events,omitempty"`
+	// IotDevices			[]IotDevice
+
 	// ContainedItems				[]Item
 	ContainedPieces				[]Piece							`firestore:"containedPieces,omitempty" json:"containedPieces,omitempty"`
 	// CustomsInfo					CustomsInfo

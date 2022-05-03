@@ -1,9 +1,5 @@
 package model
 
-import (
-	"time"
-)
-
 type Shipment struct {
 	ID         string `firestore:"id" json:"id,omitempty"`
 	ContainedPieces			[]Piece						`firestore:"containedPieces,omitempty" json:"containedPieces,omitempty"`
@@ -17,7 +13,7 @@ type Shipment struct {
 	// TotalGrossWeight		Value
 	// VolumetricWeight		VolumetricWeight
 	// WaybillNumber			Waybill
-	DeliveryDate   			time.Time					`firestore:"deliveryDate,omitempty" json:"deliveryDate,omitempty"`
+	DeliveryDate   			string					`firestore:"deliveryDate,omitempty" json:"deliveryDate,omitempty"`
 	GoodsDescription		string						`firestore:"goodsDescription,omitempty" json:"goodsDescription,omitempty"`
 	Incoterms				string						`firestore:"incoterms,omitempty" json:"incoterms,omitempty"`
 	// OtherChargesIndicator	

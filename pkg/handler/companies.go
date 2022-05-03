@@ -29,8 +29,7 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"request_id": uuid.New().String(),
 		})
 
-		logger.Infoln("GET COMPANIES")
-		logger.Debug("Try to fetch companies from DB")
+		logger.Debugln("\nGET COMPANIES")
 		companies, err := h.Service.DBService.GetCompanies(h.Service.Env.ProjectId, h.Service.Env.ServerRole)
 		if err != nil {
 			// TODO render error message with retry option
@@ -46,7 +45,7 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("POST COMPANY")
+		logger.Infoln("\nPOST COMPANY")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
