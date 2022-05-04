@@ -99,6 +99,14 @@ func main() {
 	router.HandleFunc("/{company}/pieces/{piece}/externalReferences/{externalReference}", externalReferenceHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
+	transportMovementsHandler := handler.NewTransportMovementsHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/transportMovements", transportMovementsHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+
+	transportMovementHandler := handler.NewTransportMovementHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/transportMovements/{transportMovement}", transportMovementHandler.Handler).
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
 	securityDeclarationHandler := handler.NewSecurityDeclarationHandler(svc)
 	router.HandleFunc("/{company}/pieces/{piece}/securityDeclaration", securityDeclarationHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)

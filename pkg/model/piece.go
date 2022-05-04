@@ -24,7 +24,7 @@ type Piece struct {
 	Shipment					Shipment						`firestore:"shipment,omitempty" json:"shipment,omitempty"`
 	Shipper						Company							`firestore:"shipper,omitempty" json:"shipper,omitempty"`
 	// SpecialHandling				SpecialHandling
-	// TransportMovements			[]TransportMovement				`firestore:"transportMovements,omitempty" json:"transportMovements,omitempty"`
+	TransportMovements			[]TransportMovement				`firestore:"transportMovements,omitempty" json:"transportMovements,omitempty"`
 	// TransportSegments			[]TransportSegment
 	// UldReference				ULD
 	// VolumetricWeight			VolumetricWeight

@@ -803,6 +803,212 @@ func (f *FirestoreService) DeleteExternalReferenceFields(
 	return nil
 }
 
+func (f *FirestoreService) GetTransportMovements(
+	projectID,
+	companyID,
+	pieceID string,
+) (
+	[]model.TransportMovement,
+	error,
+) {
+	var transportMovements []model.TransportMovement
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return transportMovements, err
+	}
+	defer client.Close()
+	iter := client.
+		Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Collection("transportMovements").
+		Documents(ctx)
+	for {
+		var transportMovement model.TransportMovement
+
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		} else if err != nil {
+			return transportMovements, err
+		}
+
+		if err := doc.DataTo(&transportMovement); err != nil {
+			return transportMovements, err
+		}
+
+		transportMovements = append(transportMovements, transportMovement)
+	}
+
+	return transportMovements, nil
+}
+
+func (f *FirestoreService) GetTransportMovement(
+	projectID,
+	companyID,
+	pieceID,
+	transportMovementID string,
+) (
+	model.TransportMovement,
+	error,
+) {
+	var transportMovement model.TransportMovement
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return transportMovement, err
+	}
+	defer client.Close()
+	doc, err := client.
+		Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Collection("transportMovements").Doc(transportMovementID).
+		Get(ctx)
+	if err != nil {
+		return transportMovement, err
+	}
+
+	if err := doc.DataTo(&transportMovement); err != nil {
+		return transportMovement, err
+	}
+
+	return transportMovement, nil
+}
+
+func (f *FirestoreService) AddTransportMovement(
+	projectID,
+	companyID,
+	pieceID string,
+	transportMovement model.TransportMovement,
+) (	
+	transportMovementID string,
+	err error,
+) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return transportMovementID, err
+	}
+	defer client.Close()
+	
+	if transportMovement.ID == "" {
+		var ref, _, err = client.Collection("companies").Doc(companyID).
+			Collection("pieces").Doc(pieceID).
+			Collection("transportMovements").
+			Add(ctx, transportMovement)
+		transportMovement.ID = ref.ID
+
+		client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Collection("transportMovements").Doc(transportMovement.ID).
+		Set(ctx, map[string]interface{}{
+        "id": transportMovement.ID}, firestore.MergeAll)
+
+		if err != nil {
+			return transportMovementID, err
+		}
+	} else {
+		_, err = client.Collection("companies").Doc(companyID).
+			Collection("pieces").Doc(pieceID).
+			Collection("transportMovements").Doc(transportMovement.ID).
+			Set(ctx, transportMovement)
+		if err != nil {
+			return transportMovementID, err
+		}
+	}
+
+	return transportMovement.ID, nil
+}
+
+func (f *FirestoreService) UpdateTransportMovement(
+	projectID,
+	companyID,
+	pieceID,
+	transportMovementID string,
+	transportMovement model.TransportMovement,
+) (
+	error,
+) {
+	var mapTransportMovement = utils.ToFirestoreMap(transportMovement)
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, transportMovementID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	_, err = client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Collection("transportMovements").Doc(transportMovementID).
+		Set(ctx, mapTransportMovement, firestore.MergeAll)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteTransportMovement(
+	projectID,
+	companyID,
+	pieceID,
+	transportMovementID string,
+) (
+	error,
+) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, transportMovementID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	ref := client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Collection("transportMovements").Doc(transportMovementID)
+	err = deleteDocumentAndSubcollections(ctx, client, ref)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+func (f *FirestoreService) DeleteTransportMovementFields(
+	projectID,
+	companyID,
+	pieceID,
+	transportMovementID string,
+	fields []string,
+) (
+	error,
+) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	updates := []firestore.Update{}
+
+	for _, field := range fields {
+		if !slices.Contains(strings.Split(field, "."), "id") {
+			updates = append(updates, firestore.Update{Path: field, Value: firestore.Delete})
+		}
+	}
+
+	_, err = client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Collection("transportMovements").Doc(transportMovementID).
+		Update(ctx, updates)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (f *FirestoreService) GetSecurityDeclaration(
 	projectID,
 	companyID,

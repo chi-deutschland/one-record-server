@@ -35,6 +35,14 @@ type DBService interface {
 	DeleteExternalReference(projectID, companyID, pieceID, externalReferenceID string) (error)
 	DeleteExternalReferenceFields(projectID, companyID, pieceID, externalReferenceID string, fields []string) (error)
 
+	GetTransportMovements(projectID, companyID, pieceID string) ([]model.TransportMovement, error)
+
+	GetTransportMovement(projectID, companyID, pieceID, transportMovementID string) (model.TransportMovement, error)
+	AddTransportMovement(projectID, companyID, pieceID string, transportMovement model.TransportMovement) (transportMovementID string, err error)
+	UpdateTransportMovement(projectID, companyID, pieceID, transportMovementID string, transportMovement model.TransportMovement) (error)
+	DeleteTransportMovement(projectID, companyID, pieceID, transportMovementID string) (error)
+	DeleteTransportMovementFields(projectID, companyID, pieceID, transportMovementID string, fields []string) (error)
+
 	GetSecurityDeclaration(projectID, companyID, pieceID string) (model.SecurityDeclaration, error)
 	AddSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
 	UpdateSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
