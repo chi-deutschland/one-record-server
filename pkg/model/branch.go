@@ -1,7 +1,9 @@
 package model
 
-type CompanyBranch struct {
-	ID         string   `firestore:"id" json:"id,omitempty"`
-	BranchName string   `firestore:"name,omitempty" json:"branch_name,omitempty"`
-	Location   Location `firestore:"location,omitempty" json:"location,omitempty"`
+type Branch struct {
+	ID         			string   	`firestore:"id" json:"id,omitempty"`
+	Company 			Company   	`firestore:"company,omitempty" json:"company,omitempty"`
+	ContactPerson   	Person 		`firestore:"contactPerson,omitempty" json:"contactPerson,omitempty"`
+	Location 			Location  	`firestore:"location,omitempty" json:"location,omitempty"`
+	OtherIdentifier 	string   	`firestore:"otherIdentifier,omitempty" json:"otherIdentifier,omitempty"`
 }

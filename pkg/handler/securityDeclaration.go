@@ -12,55 +12,29 @@ import (
 	"io"
 )
 
-type ExternalReferenceData struct {
+type SecurityDeclarationData struct {
 	Title   string
 	Host    string
-	ExternalReference model.ExternalReference
+	SecurityDeclaration model.SecurityDeclaration
 }
 
-type ExternalReferenceHandler struct {
+type SecurityDeclarationHandler struct {
 	Service *service.Service
 }
 
-func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
-		w.Header().Set("Content-Type", "application/json")
+	case "POST":
 		logger := logrus.WithFields(logrus.Fields{
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nGET EXTERNAL REFERENCE")
-		logger.Infof("Received request with params %#v", r.URL.Path)
-
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		externalReferenceID := split_url[4]
-		externalReference, err := h.Service.DBService.GetExternalReference(
-			h.Service.Env.ProjectId,
-			companyID,
-			pieceID,
-			externalReferenceID)
-		if err != nil {
-			// TODO render error message with retry option
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		} else {
-			logger.Debugf("Fetched externalReference: %#v", externalReference)
-			json.NewEncoder(w).Encode(externalReference)
-		}
-
-	case "PATCH":
-		logger := logrus.WithFields(logrus.Fields{
-			"role":       h.Service.Env.ServerRole,
-			"request_id": uuid.New().String(),
-		})
-		logger.Infoln("\nPATCH EXTERNAL REFERENCE")
+		logger.Debugln("\nPOST SECURITY DECLARATION")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
-		var externalReference model.ExternalReference
-		err := decoder.Decode(&externalReference)
+		var securityDeclaration model.SecurityDeclaration
+		err := decoder.Decode(&securityDeclaration)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -68,12 +42,63 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			split_url := strings.Split(r.URL.Path[1:], "/")
 			companyID := split_url[0]
 			pieceID := split_url[2]
-			externalReferenceID := split_url[4]
-			logger.Debugln(companyID, pieceID, externalReferenceID)
-			logger.Debugf("externalReference: %#v", externalReference)
-			h.Service.DBService.UpdateExternalReference(
+			err = h.Service.DBService.AddSecurityDeclaration(
+			h.Service.Env.ProjectId, companyID, pieceID, securityDeclaration)
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			} else {
+				w.WriteHeader(http.StatusCreated)
+			}
+		}
+	
+	case "GET":
+		w.Header().Set("Content-Type", "application/json")
+		logger := logrus.WithFields(logrus.Fields{
+			"role":       h.Service.Env.ServerRole,
+			"request_id": uuid.New().String(),
+		})
+		logger.Infoln("\nGET SECURITY DECLARATION")
+		logger.Infof("Received request with params %#v", r.URL.Path)
+
+		split_url := strings.Split(r.URL.Path[1:], "/")
+		companyID := split_url[0]
+		pieceID := split_url[2]
+		securityDeclaration, err := h.Service.DBService.GetSecurityDeclaration(
 			h.Service.Env.ProjectId,
-			companyID, pieceID, externalReferenceID, externalReference)
+			companyID,
+			pieceID)
+		if err != nil {
+			// TODO render error message with retry option
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			logger.Debugf("Fetched securityDeclaration: %#v", securityDeclaration)
+			json.NewEncoder(w).Encode(securityDeclaration)
+		}
+
+	case "PATCH":
+		logger := logrus.WithFields(logrus.Fields{
+			"role":       h.Service.Env.ServerRole,
+			"request_id": uuid.New().String(),
+		})
+		logger.Infoln("\nPATCH SECURITY DECLARATION")
+		logger.Infof("Received request with params %#v", r.URL.Path)
+
+		decoder := json.NewDecoder(r.Body)
+		var securityDeclaration model.SecurityDeclaration
+		err := decoder.Decode(&securityDeclaration)
+		if err != nil {
+			// TODO render error message with retry option
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			split_url := strings.Split(r.URL.Path[1:], "/")
+			companyID := split_url[0]
+			pieceID := split_url[2]
+			logger.Debugln(companyID, pieceID)
+			logger.Debugf("securityDeclaration: %#v", securityDeclaration)
+			h.Service.DBService.UpdateSecurityDeclaration(
+			h.Service.Env.ProjectId,
+			companyID, pieceID, securityDeclaration)
 		}
 
 	case "DELETE":
@@ -81,36 +106,35 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nDELETE EXTERNAL REFERENCE")
+		logger.Infoln("\nDELETE SECURITY DECLARATION")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		split_url := strings.Split(r.URL.Path[1:], "/")
 		companyID := split_url[0]
 		pieceID := split_url[2]
-		externalReferenceID := split_url[4]
 		decoder := json.NewDecoder(r.Body)
 		var body map[string][]string
 		err := decoder.Decode(&body)
 		switch {
 		case err == io.EOF:
-			h.Service.DBService.DeleteExternalReference(
+			h.Service.DBService.DeleteSecurityDeclaration(
 				h.Service.Env.ProjectId,
-				companyID, pieceID, externalReferenceID)
+				companyID, pieceID)
 		case err != nil:
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			if fields, ok := body["fields"]; ok {
-				h.Service.DBService.DeleteExternalReferenceFields(
+				h.Service.DBService.DeleteSecurityDeclarationFields(
 				h.Service.Env.ProjectId,
-				companyID, pieceID, externalReferenceID, fields)
+				companyID, pieceID, fields)
 			}
 		}
 	}
 }
 
-func NewExternalReferenceHandler(svc *service.Service) *ExternalReferenceHandler {
-	return &ExternalReferenceHandler{Service: svc}
+func NewSecurityDeclarationHandler(svc *service.Service) *SecurityDeclarationHandler {
+	return &SecurityDeclarationHandler{Service: svc}
 }
 
-var _ onerecordhttp.ContextHandler = (*ExternalReferenceHandler)(nil)
+var _ onerecordhttp.ContextHandler = (*SecurityDeclarationHandler)(nil)

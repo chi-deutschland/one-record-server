@@ -1,9 +1,9 @@
 package model
 
 type Shipment struct {
-	ID         string `firestore:"id" json:"id,omitempty"`
+	ID         				string 						`firestore:"id" json:"id,omitempty"`
 	ContainedPieces			[]Piece						`firestore:"containedPieces,omitempty" json:"containedPieces,omitempty"`
-	// DeliveryLocation		Location
+	DeliveryLocation		Location					`firestore:"deliveryLocation,omitempty" json:"deliveryLocation,omitempty"`
 	// Dimensions				Dimensions
 	ExternalReferences		[]ExternalReference			`firestore:"externalReferences,omitempty" json:"externalReferences,omitempty"`
 	FreightForwarder		Company						`firestore:"freightForwarder,omitempty" json:"freightForwarder,omitempty"`

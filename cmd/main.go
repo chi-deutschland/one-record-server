@@ -14,7 +14,6 @@ import (
 	"os"
 	"time"
 	"fmt"
-	// "github.com/joho/godotenv"
 )
 
 var envVars service.Env
@@ -29,8 +28,6 @@ func init() {
 }
 
 func main() {
-	// godotenv.Load("one_record.env")
-	// fmt.Println("SRV_ROLE:", os.Getenv("SRV_ROLE"))
 	secretManager, err := gcp.NewSecretManagerService()
 	if err != nil {
 		logrus.Panicf("can`t initialize GCP Secret Manager service: %s", err)
@@ -101,6 +98,10 @@ func main() {
 	externalReferenceHandler := handler.NewExternalReferenceHandler(svc)
 	router.HandleFunc("/{company}/pieces/{piece}/externalReferences/{externalReference}", externalReferenceHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
+	securityDeclarationHandler := handler.NewSecurityDeclarationHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/securityDeclaration", securityDeclarationHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	srv := &http.Server{
 		Handler:      router,

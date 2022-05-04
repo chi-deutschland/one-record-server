@@ -2,8 +2,8 @@ package model
 
 type Piece struct {
 	ID							string							`firestore:"id" json:"id,omitempty"`
-	CompanyIdentifier	string		`firestore:"companyIdentifier,omitempty" json:"companyIdentifier,omitempty"`
-	Events				[]Event		`firestore:"events,omitempty" json:"events,omitempty"`
+	CompanyIdentifier			string							`firestore:"companyIdentifier,omitempty" json:"companyIdentifier,omitempty"`
+	Events						[]Event							`firestore:"events,omitempty" json:"events,omitempty"`
 	// IotDevices			[]IotDevice
 
 	// ContainedItems				[]Item
@@ -18,8 +18,8 @@ type Piece struct {
 	// PackagingType				PackagingType
 	// Parties						[]Party
 	// ProductionCountry			ProductionCountry
-	// SecurityDeclaration			SecurityDeclaration
-	// SecurityStatus				SecurityDeclaration
+	SecurityDeclaration			SecurityDeclaration				`firestore:"securityDeclaration,omitempty" json:"securityDeclaration,omitempty"`
+	// SecurityStatus				SecurityDeclaration				`firestore:"securityStatus,omitempty" json:"securityStatus,omitempty"`
 	// ServiceRequest				ServiceRequest
 	// Shipment					Shipment						`firestore:"shipment,omitempty" json:"shipment,omitempty"`
 	Shipper						Company							`firestore:"shipper,omitempty" json:"shipper,omitempty"`

@@ -34,4 +34,10 @@ type DBService interface {
 	UpdateExternalReference(projectID, companyID, pieceID, externalReferenceID string, externalReference model.ExternalReference) (error)
 	DeleteExternalReference(projectID, companyID, pieceID, externalReferenceID string) (error)
 	DeleteExternalReferenceFields(projectID, companyID, pieceID, externalReferenceID string, fields []string) (error)
+
+	GetSecurityDeclaration(projectID, companyID, pieceID string) (model.SecurityDeclaration, error)
+	AddSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
+	UpdateSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
+	DeleteSecurityDeclaration(projectID, companyID, pieceID string) (error)
+	DeleteSecurityDeclarationFields(projectID, companyID, pieceID string, fields []string) (error)
 }
