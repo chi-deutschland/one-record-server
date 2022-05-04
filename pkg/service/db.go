@@ -40,4 +40,10 @@ type DBService interface {
 	UpdateSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
 	DeleteSecurityDeclaration(projectID, companyID, pieceID string) (error)
 	DeleteSecurityDeclarationFields(projectID, companyID, pieceID string, fields []string) (error)
+
+	GetShipment(projectID, companyID, pieceID string) (model.Shipment, error)
+	AddShipment(projectID, companyID, pieceID string, piece model.Shipment) (error)
+	UpdateShipment(projectID, companyID, pieceID string, piece model.Shipment) (error)
+	DeleteShipment(projectID, companyID, pieceID string) (error)
+	DeleteShipmentFields(projectID, companyID, pieceID string, fields []string) (error)
 }

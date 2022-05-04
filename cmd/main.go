@@ -103,6 +103,10 @@ func main() {
 	router.HandleFunc("/{company}/pieces/{piece}/securityDeclaration", securityDeclarationHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
+	shipmentHandler := handler.NewShipmentHandler(svc)
+	router.HandleFunc("/{company}/pieces/{piece}/shipment", shipmentHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         "0.0.0.0:8080",

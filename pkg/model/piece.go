@@ -21,7 +21,7 @@ type Piece struct {
 	SecurityDeclaration			SecurityDeclaration				`firestore:"securityDeclaration,omitempty" json:"securityDeclaration,omitempty"`
 	// SecurityStatus				SecurityDeclaration				`firestore:"securityStatus,omitempty" json:"securityStatus,omitempty"`
 	// ServiceRequest				ServiceRequest
-	// Shipment					Shipment						`firestore:"shipment,omitempty" json:"shipment,omitempty"`
+	Shipment					Shipment						`firestore:"shipment,omitempty" json:"shipment,omitempty"`
 	Shipper						Company							`firestore:"shipper,omitempty" json:"shipper,omitempty"`
 	// SpecialHandling				SpecialHandling
 	// TransportMovements			[]TransportMovement				`firestore:"transportMovements,omitempty" json:"transportMovements,omitempty"`

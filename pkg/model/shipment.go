@@ -13,7 +13,7 @@ type Shipment struct {
 	// TotalGrossWeight		Value
 	// VolumetricWeight		VolumetricWeight
 	// WaybillNumber			Waybill
-	DeliveryDate   			string					`firestore:"deliveryDate,omitempty" json:"deliveryDate,omitempty"`
+	DeliveryDate   			string						`firestore:"deliveryDate,omitempty" json:"deliveryDate,omitempty"`
 	GoodsDescription		string						`firestore:"goodsDescription,omitempty" json:"goodsDescription,omitempty"`
 	Incoterms				string						`firestore:"incoterms,omitempty" json:"incoterms,omitempty"`
 	// OtherChargesIndicator	

@@ -976,6 +976,179 @@ func (f *FirestoreService) DeleteSecurityDeclarationFields(
 	return nil
 }
 
+func (f *FirestoreService) GetShipment(
+	projectID,
+	companyID,
+	pieceID string,
+) (
+	model.Shipment,
+	error,
+) {
+	var shipment model.Shipment
+	var piece model.Piece
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return shipment, err
+	}
+	defer client.Close()
+	doc, err := client.
+		Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Get(ctx)
+	if err != nil {
+		return shipment, err
+	}
+
+	if err := doc.DataTo(&piece); err != nil {
+		return shipment, err
+	}
+
+	return piece.Shipment, nil
+}
+
+func (f *FirestoreService) AddShipment(
+	projectID,
+	companyID,
+	pieceID string,
+	shipment model.Shipment,
+) (	
+	err error,
+) {
+	var piece model.Piece
+
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	
+	doc, err := client.
+		Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := doc.DataTo(&piece); err != nil {
+		return err
+	}
+
+	piece.Shipment = shipment
+	
+	_, err = client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Set(ctx, piece)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) UpdateShipment(
+	projectID,
+	companyID,
+	pieceID string,
+	shipment model.Shipment,
+) (
+	error,
+) {
+	var piece model.Piece
+
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	
+	doc, err := client.
+		Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := doc.DataTo(&piece); err != nil {
+		return err
+	}
+
+	piece.Shipment = shipment
+	var mapPiece = utils.ToFirestoreMap(piece)
+	
+	_, err = client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Set(ctx, mapPiece, firestore.MergeAll)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteShipment(
+	projectID,
+	companyID,
+	pieceID string,
+) (
+	error,
+) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	_, err = client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Update(ctx, []firestore.Update{{Path: "shipment", Value: firestore.Delete}})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+func (f *FirestoreService) DeleteShipmentFields(
+	projectID,
+	companyID,
+	pieceID string,
+	fields []string,
+) (
+	error,
+) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	updates := []firestore.Update{}
+
+	for _, field := range fields {
+		if !slices.Contains(strings.Split(field, "."), "id") {
+			updates = append(updates, firestore.Update{Path: "shipment." + field, Value: firestore.Delete})
+		}
+	}
+
+	_, err = client.Collection("companies").Doc(companyID).
+		Collection("pieces").Doc(pieceID).
+		Update(ctx, updates)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewFirestoreService() (*FirestoreService, error) {
 	var f FirestoreService
 	return &f, nil
