@@ -1,28 +1,24 @@
 package handler
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
-	"strings"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
+	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-    "encoding/json"
-	"io"
 )
-
-type EventData struct {
-	Title   string
-	Host    string
-	Event model.Event
-}
 
 type EventHandler struct {
 	Service *service.Service
 }
 
 func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json")
@@ -30,23 +26,14 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nGET EVENTS")
+		logger.Debugln("\nGET Event")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		eventID := split_url[4]
-		event, err := h.Service.DBService.GetEvent(
-			h.Service.Env.ProjectId,
-			companyID,
-			pieceID,
-			eventID)
+		event, err := h.Service.DBService.GetEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched event: %#v", event)
 			json.NewEncoder(w).Encode(event)
 		}
 
@@ -55,7 +42,7 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nPATCH EVENT")
+		logger.Infoln("\nPATCH Event")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -65,15 +52,11 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			split_url := strings.Split(r.URL.Path[1:], "/")
-			companyID := split_url[0]
-			pieceID := split_url[2]
-			eventID := split_url[4]
-			logger.Debugln(companyID, pieceID, eventID)
-			logger.Debugf("event: %#v", event)
-			h.Service.DBService.UpdateEvent(
-			h.Service.Env.ProjectId,
-			companyID, pieceID, eventID, event)
+			err = h.Service.DBService.UpdateEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, utils.ToFirestoreMap(event))
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "DELETE":
@@ -81,29 +64,29 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nDELETE EVENT")
+		logger.Infoln("\nDELETE Event")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		eventID := split_url[4]
 		decoder := json.NewDecoder(r.Body)
 		var body map[string][]string
 		err := decoder.Decode(&body)
 		switch {
 		case err == io.EOF:
-			h.Service.DBService.DeleteEvent(
-				h.Service.Env.ProjectId,
-				companyID, pieceID, eventID)
+			err = h.Service.DBService.DeleteEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		case err != nil:
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			if fields, ok := body["fields"]; ok {
-				h.Service.DBService.DeleteEventFields(
-				h.Service.Env.ProjectId,
-				companyID, pieceID, eventID, fields)
+				err = h.Service.DBService.DeleteEventFields(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, fields)
+				if err != nil {
+					// TODO render error message with retry option
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
 			}
 		}
 	}

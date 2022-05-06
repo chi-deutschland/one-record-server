@@ -1,26 +1,22 @@
 package handler
 
 import (
+	"encoding/json"
+	"net/http"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"net/http"
-    "encoding/json"
 )
-
-type CompaniesData struct {
-	Title     string
-	Host      string
-	Companies []model.Company
-}
 
 type CompaniesHandler struct {
 	Service *service.Service
 }
 
 func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json+ld")
@@ -28,24 +24,23 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
+		logger.Debugln("\nGET Companies")
+		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		logger.Debugln("\nGET COMPANIES")
-		companies, err := h.Service.DBService.GetCompanies(h.Service.Env.ProjectId, h.Service.Env.ServerRole)
+		companies, err := h.Service.DBService.GetCompanies(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched companies: %#v", companies)
 			json.NewEncoder(w).Encode(companies)
 		}
 
 	case "POST":
-		w.Header().Set("Content-Type", "application/json+ld")
 		logger := logrus.WithFields(logrus.Fields{
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nPOST COMPANY")
+		logger.Infoln("\nPOST Company")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -55,14 +50,12 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			var companyID, err = h.Service.DBService.AddCompany(
-			h.Service.Env.ProjectId,
-			company)
+			ID, err := h.Service.DBService.AddCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, company.ID, company)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
-				json.NewEncoder(w).Encode(map[string]string{"id": companyID})
+				json.NewEncoder(w).Encode(map[string]string{"id": ID})
 				w.WriteHeader(http.StatusCreated)
 			}
 		}

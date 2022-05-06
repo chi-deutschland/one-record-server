@@ -1,35 +1,48 @@
 package handler
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
-	"strings"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
+	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-    "encoding/json"
-	"io"
 )
-
-type SecurityDeclarationData struct {
-	Title   string
-	Host    string
-	SecurityDeclaration model.SecurityDeclaration
-}
 
 type SecurityDeclarationHandler struct {
 	Service *service.Service
 }
 
 func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	colPath, docPath, id := PathSingleEntry(r.URL.Path, "securityDeclarations")
 	switch r.Method {
+	case "GET":
+		w.Header().Set("Content-Type", "application/json")
+		logger := logrus.WithFields(logrus.Fields{
+			"role":       h.Service.Env.ServerRole,
+			"request_id": uuid.New().String(),
+		})
+		logger.Debugln("\nGET SecurityDeclaration")
+		logger.Infof("Received request with params %#v", r.URL.Path)
+
+		securityDeclaration, err := h.Service.DBService.GetSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, docPath)
+		if err != nil {
+			// TODO render error message with retry option
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			json.NewEncoder(w).Encode(securityDeclaration)
+		}
+
 	case "POST":
 		logger := logrus.WithFields(logrus.Fields{
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nPOST SECURITY DECLARATION")
+		logger.Infoln("\nPOST SecurityDeclaration")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -39,41 +52,14 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			split_url := strings.Split(r.URL.Path[1:], "/")
-			companyID := split_url[0]
-			pieceID := split_url[2]
-			err = h.Service.DBService.AddSecurityDeclaration(
-			h.Service.Env.ProjectId, companyID, pieceID, securityDeclaration)
+			ID, err := h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, colPath, id, securityDeclaration)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
+				json.NewEncoder(w).Encode(map[string]string{"id": ID})
 				w.WriteHeader(http.StatusCreated)
 			}
-		}
-	
-	case "GET":
-		w.Header().Set("Content-Type", "application/json")
-		logger := logrus.WithFields(logrus.Fields{
-			"role":       h.Service.Env.ServerRole,
-			"request_id": uuid.New().String(),
-		})
-		logger.Infoln("\nGET SECURITY DECLARATION")
-		logger.Infof("Received request with params %#v", r.URL.Path)
-
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		securityDeclaration, err := h.Service.DBService.GetSecurityDeclaration(
-			h.Service.Env.ProjectId,
-			companyID,
-			pieceID)
-		if err != nil {
-			// TODO render error message with retry option
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		} else {
-			logger.Debugf("Fetched securityDeclaration: %#v", securityDeclaration)
-			json.NewEncoder(w).Encode(securityDeclaration)
 		}
 
 	case "PATCH":
@@ -81,7 +67,7 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nPATCH SECURITY DECLARATION")
+		logger.Infoln("\nPATCH SecurityDeclaration")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -91,14 +77,11 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			split_url := strings.Split(r.URL.Path[1:], "/")
-			companyID := split_url[0]
-			pieceID := split_url[2]
-			logger.Debugln(companyID, pieceID)
-			logger.Debugf("securityDeclaration: %#v", securityDeclaration)
-			h.Service.DBService.UpdateSecurityDeclaration(
-			h.Service.Env.ProjectId,
-			companyID, pieceID, securityDeclaration)
+			err = h.Service.DBService.UpdateSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, docPath, utils.ToFirestoreMap(securityDeclaration))
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "DELETE":
@@ -106,28 +89,29 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nDELETE SECURITY DECLARATION")
+		logger.Infoln("\nDELETE SecurityDeclaration")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
 		decoder := json.NewDecoder(r.Body)
 		var body map[string][]string
 		err := decoder.Decode(&body)
 		switch {
 		case err == io.EOF:
-			h.Service.DBService.DeleteSecurityDeclaration(
-				h.Service.Env.ProjectId,
-				companyID, pieceID)
+			err = h.Service.DBService.DeleteSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, docPath)
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		case err != nil:
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			if fields, ok := body["fields"]; ok {
-				h.Service.DBService.DeleteSecurityDeclarationFields(
-				h.Service.Env.ProjectId,
-				companyID, pieceID, fields)
+				err = h.Service.DBService.DeleteSecurityDeclarationFields(h.Service.Env.ProjectId, h.Service.Env.ServerRole, docPath, fields)
+				if err != nil {
+					// TODO render error message with retry option
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
 			}
 		}
 	}

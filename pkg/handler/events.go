@@ -1,27 +1,22 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
-	"strings"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-    "encoding/json"
 )
-
-type EventsData struct {
-	Title   string
-	Host    string
-	Events []model.Event
-}
 
 type EventsHandler struct {
 	Service *service.Service
 }
 
 func (h *EventsHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json+ld")
@@ -29,29 +24,23 @@ func (h *EventsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
+		logger.Debugln("\nGET Events")
+		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		logger.Debugln("\nGET EVENTS")
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		events, err := h.Service.DBService.GetEvents(
-		h.Service.Env.ProjectId,
-		companyID, pieceID)
+		events, err := h.Service.DBService.GetEvents(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched events: %#v", events)
 			json.NewEncoder(w).Encode(events)
 		}
 
 	case "POST":
-		w.Header().Set("Content-Type", "application/json+ld")
 		logger := logrus.WithFields(logrus.Fields{
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nPOST EVENTS")
+		logger.Infoln("\nPOST Event")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -61,16 +50,12 @@ func (h *EventsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			split_url := strings.Split(r.URL.Path[1:], "/")
-			companyID := split_url[0]
-			pieceID := split_url[2]
-			var eventID, err = h.Service.DBService.AddEvent(
-			h.Service.Env.ProjectId, companyID, pieceID, event)
+			ID, err := h.Service.DBService.AddEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, event.ID, event)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
-				json.NewEncoder(w).Encode(map[string]string{"id": eventID})
+				json.NewEncoder(w).Encode(map[string]string{"id": ID})
 				w.WriteHeader(http.StatusCreated)
 			}
 		}

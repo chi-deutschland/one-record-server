@@ -1,27 +1,22 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
-	"strings"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-    "encoding/json"
 )
-
-type TransportMovementsData struct {
-	Title   string
-	Host    string
-	TransportMovements []model.TransportMovement
-}
 
 type TransportMovementsHandler struct {
 	Service *service.Service
 }
 
 func (h *TransportMovementsHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json+ld")
@@ -29,29 +24,23 @@ func (h *TransportMovementsHandler) Handler(w http.ResponseWriter, r *http.Reque
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
+		logger.Debugln("\nGET TransportMovements")
+		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		logger.Debugln("\nGET TRANSPORT MOVEMENTS")
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		transportMovements, err := h.Service.DBService.GetTransportMovements(
-		h.Service.Env.ProjectId,
-		companyID, pieceID)
+		transportMovements, err := h.Service.DBService.GetTransportMovements(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched transportMovements: %#v", transportMovements)
 			json.NewEncoder(w).Encode(transportMovements)
 		}
 
 	case "POST":
-		w.Header().Set("Content-Type", "application/json+ld")
 		logger := logrus.WithFields(logrus.Fields{
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nPOST TRANSPORT MOVEMENT")
+		logger.Infoln("\nPOST TransportMovement")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -61,16 +50,12 @@ func (h *TransportMovementsHandler) Handler(w http.ResponseWriter, r *http.Reque
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			split_url := strings.Split(r.URL.Path[1:], "/")
-			companyID := split_url[0]
-			pieceID := split_url[2]
-			var transportMovementID, err = h.Service.DBService.AddTransportMovement(
-			h.Service.Env.ProjectId, companyID, pieceID, transportMovement)
+			ID, err := h.Service.DBService.AddTransportMovement(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, transportMovement.ID, transportMovement)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
-				json.NewEncoder(w).Encode(map[string]string{"id": transportMovementID})
+				json.NewEncoder(w).Encode(map[string]string{"id": ID})
 				w.WriteHeader(http.StatusCreated)
 			}
 		}

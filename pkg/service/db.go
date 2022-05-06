@@ -1,57 +1,64 @@
 package service
 
-import "github.com/chi-deutschland/one-record-server/pkg/model"
+import (
+	"github.com/chi-deutschland/one-record-server/pkg/model"
+	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
+)
 
 type DBService interface {
-	GetCompanies(projectID, role string) ([]model.Company, error)
+	GetCompanies(projectID, role, colPath string) ([]model.Company, error)
 
-	GetCompany(projectID, companyID string) (model.Company, error)
-	AddCompany(projectID string, company model.Company) (companyID string, err error)
-	UpdateCompany(projectID, companyID string, company model.Company) (error)
-	DeleteCompany(projectID, companyID string) (error)
-	DeleteCompanyFields(projectID, companyID string, fields []string) (error)
+	GetCompany(projectID, role, docPath string) (model.Company, error)
+	AddCompany(projectID, role, colPath, id string, company model.Company) (ID string, err error)
+	UpdateCompany( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteCompany( projectID, role, docPath string) (error)
+	DeleteCompanyFields( projectID, role, docPath string, fields []string) (error)
 
-	GetPieces(projectID, companyID string) ([]model.Piece, error)
+	GetPieces(projectID, role, colPath string) ([]model.Piece, error)
 
-	GetPiece(projectID, companyID, pieceID string) (model.Piece, error)
-	AddPiece(projectID, companyID string, piece model.Piece) (pieceID string, err error)
-	UpdatePiece(projectID, companyID, pieceID string, piece model.Piece) (error)
-	DeletePiece(projectID, companyID, pieceID string) (error)
-	DeletePieceFields(projectID, companyID, pieceID string, fields []string) (error)
+	GetPiece(projectID, role, docPath string) (model.Piece, error)
+	AddPiece(projectID, role, colPath, id string, piece model.Piece) (ID string, err error)
+	UpdatePiece( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeletePiece( projectID, role, docPath string) (error)
+	DeletePieceFields( projectID, role, docPath string, fields []string) (error)
 
-	GetEvents(projectID, companyID, pieceID string) ([]model.Event, error)
+	GetEvents(projectID, role, colPath string) ([]model.Event, error)
 
-	GetEvent(projectID, companyID, pieceID, eventID string) (model.Event, error)
-	AddEvent(projectID, companyID, pieceID string, event model.Event) (eventID string, err error)
-	UpdateEvent(projectID, companyID, pieceID, eventID string, event model.Event) (error)
-	DeleteEvent(projectID, companyID, pieceID, eventID string) (error)
-	DeleteEventFields(projectID, companyID, pieceID, eventID string, fields []string) (error)
+	GetEvent(projectID, role, docPath string) (model.Event, error)
+	AddEvent(projectID, role, colPath, id string, event model.Event) (ID string, err error)
+	UpdateEvent( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteEvent( projectID, role, docPath string) (error)
+	DeleteEventFields( projectID, role, docPath string, fields []string) (error)
 
-	GetExternalReferences(projectID, companyID, pieceID string) ([]model.ExternalReference, error)
+	GetExternalReferences(projectID, role, colPath string) ([]model.ExternalReference, error)
 
-	GetExternalReference(projectID, companyID, pieceID, externalReferenceID string) (model.ExternalReference, error)
-	AddExternalReference(projectID, companyID, pieceID string, externalReference model.ExternalReference) (externalReferenceID string, err error)
-	UpdateExternalReference(projectID, companyID, pieceID, externalReferenceID string, externalReference model.ExternalReference) (error)
-	DeleteExternalReference(projectID, companyID, pieceID, externalReferenceID string) (error)
-	DeleteExternalReferenceFields(projectID, companyID, pieceID, externalReferenceID string, fields []string) (error)
+	GetExternalReference(projectID, role, docPath string) (model.ExternalReference, error)
+	AddExternalReference(projectID, role, colPath, id string, externalReference model.ExternalReference) (ID string, err error)
+	UpdateExternalReference( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteExternalReference( projectID, role, docPath string) (error)
+	DeleteExternalReferenceFields( projectID, role, docPath string, fields []string) (error)
 
-	GetTransportMovements(projectID, companyID, pieceID string) ([]model.TransportMovement, error)
+	GetSecurityDeclarations(projectID, role, colPath string) ([]model.SecurityDeclaration, error)
 
-	GetTransportMovement(projectID, companyID, pieceID, transportMovementID string) (model.TransportMovement, error)
-	AddTransportMovement(projectID, companyID, pieceID string, transportMovement model.TransportMovement) (transportMovementID string, err error)
-	UpdateTransportMovement(projectID, companyID, pieceID, transportMovementID string, transportMovement model.TransportMovement) (error)
-	DeleteTransportMovement(projectID, companyID, pieceID, transportMovementID string) (error)
-	DeleteTransportMovementFields(projectID, companyID, pieceID, transportMovementID string, fields []string) (error)
+	GetSecurityDeclaration(projectID, role, docPath string) (model.SecurityDeclaration, error)
+	AddSecurityDeclaration(projectID, role, colPath, id string, securityDeclaration model.SecurityDeclaration) (ID string, err error)
+	UpdateSecurityDeclaration( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteSecurityDeclaration( projectID, role, docPath string) (error)
+	DeleteSecurityDeclarationFields( projectID, role, docPath string, fields []string) (error)
 
-	GetSecurityDeclaration(projectID, companyID, pieceID string) (model.SecurityDeclaration, error)
-	AddSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
-	UpdateSecurityDeclaration(projectID, companyID, pieceID string, piece model.SecurityDeclaration) (error)
-	DeleteSecurityDeclaration(projectID, companyID, pieceID string) (error)
-	DeleteSecurityDeclarationFields(projectID, companyID, pieceID string, fields []string) (error)
+	GetShipments(projectID, role, colPath string) ([]model.Shipment, error)
 
-	GetShipment(projectID, companyID, pieceID string) (model.Shipment, error)
-	AddShipment(projectID, companyID, pieceID string, piece model.Shipment) (error)
-	UpdateShipment(projectID, companyID, pieceID string, piece model.Shipment) (error)
-	DeleteShipment(projectID, companyID, pieceID string) (error)
-	DeleteShipmentFields(projectID, companyID, pieceID string, fields []string) (error)
+	GetShipment(projectID, role, docPath string) (model.Shipment, error)
+	AddShipment(projectID, role, colPath, id string, shipment model.Shipment) (ID string, err error)
+	UpdateShipment( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteShipment( projectID, role, docPath string) (error)
+	DeleteShipmentFields( projectID, role, docPath string, fields []string) (error)
+
+	GetTransportMovements(projectID, role, colPath string) ([]model.TransportMovement, error)
+
+	GetTransportMovement(projectID, role, docPath string) (model.TransportMovement, error)
+	AddTransportMovement(projectID, role, colPath, id string, transportMovement model.TransportMovement) (ID string, err error)
+	UpdateTransportMovement( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteTransportMovement( projectID, role, docPath string) (error)
+	DeleteTransportMovementFields( projectID, role, docPath string, fields []string) (error)
 }

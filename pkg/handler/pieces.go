@@ -1,27 +1,22 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
-	"strings"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-    "encoding/json"
 )
-
-type PiecesData struct {
-	Title   string
-	Host    string
-	Pieces []model.Piece
-}
 
 type PiecesHandler struct {
 	Service *service.Service
 }
 
 func (h *PiecesHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json+ld")
@@ -29,27 +24,23 @@ func (h *PiecesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
+		logger.Debugln("\nGET Pieces")
+		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		logger.Debugln("\nGET PIECES")
-		companyID := strings.Split(r.URL.Path[1:], "/")[0]
-		pieces, err := h.Service.DBService.GetPieces(
-		h.Service.Env.ProjectId,
-		companyID)
+		pieces, err := h.Service.DBService.GetPieces(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched pieces: %#v", pieces)
 			json.NewEncoder(w).Encode(pieces)
 		}
 
 	case "POST":
-		w.Header().Set("Content-Type", "application/json+ld")
 		logger := logrus.WithFields(logrus.Fields{
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nPOST PIECE")
+		logger.Infoln("\nPOST Piece")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -59,14 +50,12 @@ func (h *PiecesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			companyID := strings.Split(r.URL.Path[1:], "/")[0]
-			var pieceID, err = h.Service.DBService.AddPiece(
-			h.Service.Env.ProjectId, companyID, piece)
+			ID, err := h.Service.DBService.AddPiece(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, piece.ID, piece)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
-				json.NewEncoder(w).Encode(map[string]string{"id": pieceID})
+				json.NewEncoder(w).Encode(map[string]string{"id": ID})
 				w.WriteHeader(http.StatusCreated)
 			}
 		}

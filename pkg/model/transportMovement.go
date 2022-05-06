@@ -2,10 +2,10 @@ package model
 
 type TransportMovement struct {
 	ID         					string 					`firestore:"id" json:"id,omitempty"`
-	ArrivalLocation				Location				`firestore:"arrivalLocation,omitempty" json:"arrivalLocation,omitempty"`
+	ArrivalLocation				*Location				`firestore:"arrivalLocation,omitempty" json:"arrivalLocation,omitempty"`
 	// Co2CalculationMethod		CO2CalcMethod 
 	// Co2Emissions 				CO2Emissions
-	DepartureLocation			Location				`firestore:"departureLocation,omitempty" json:"departureLocation,omitempty"`
+	DepartureLocation			*Location				`firestore:"departureLocation,omitempty" json:"departureLocation,omitempty"`
 	// DistanceCalculated 			Value
 	// DistanceMeasured 			Value
 	ExternalReferences   		[]ExternalReference		`firestore:"externalReferences,omitempty" json:"externalReferences,omitempty"`

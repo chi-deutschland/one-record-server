@@ -2,7 +2,7 @@ package model
 
 type Person struct {
 	ID         			string   				`firestore:"id" json:"id,omitempty"`
-	AssociatedBranch 	CompanyBranch   		`firestore:"associatedBranch,omitempty" json:"associatedBranch,omitempty"`
+	AssociatedBranch 	*CompanyBranch   		`firestore:"associatedBranch,omitempty" json:"associatedBranch,omitempty"`
 	Contact   			string 					`firestore:"contact,omitempty" json:"contact,omitempty"`
 	Documents 			[]ExternalReference 	`firestore:"documents,omitempty" json:"documents,omitempty"`
 	ContactType 		string 					`firestore:"contactType,omitempty" json:"contactType,omitempty"`

@@ -1,28 +1,24 @@
 package handler
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
-	"strings"
+
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
+	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-    "encoding/json"
-	"io"
 )
-
-type ExternalReferenceData struct {
-	Title   string
-	Host    string
-	ExternalReference model.ExternalReference
-}
 
 type ExternalReferenceHandler struct {
 	Service *service.Service
 }
 
 func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Request) {
+	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
 		w.Header().Set("Content-Type", "application/json")
@@ -30,23 +26,14 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nGET EXTERNAL REFERENCE")
+		logger.Debugln("\nGET ExternalReference")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		externalReferenceID := split_url[4]
-		externalReference, err := h.Service.DBService.GetExternalReference(
-			h.Service.Env.ProjectId,
-			companyID,
-			pieceID,
-			externalReferenceID)
+		externalReference, err := h.Service.DBService.GetExternalReference(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			logger.Debugf("Fetched externalReference: %#v", externalReference)
 			json.NewEncoder(w).Encode(externalReference)
 		}
 
@@ -55,7 +42,7 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nPATCH EXTERNAL REFERENCE")
+		logger.Infoln("\nPATCH ExternalReference")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -65,15 +52,11 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			split_url := strings.Split(r.URL.Path[1:], "/")
-			companyID := split_url[0]
-			pieceID := split_url[2]
-			externalReferenceID := split_url[4]
-			logger.Debugln(companyID, pieceID, externalReferenceID)
-			logger.Debugf("externalReference: %#v", externalReference)
-			h.Service.DBService.UpdateExternalReference(
-			h.Service.Env.ProjectId,
-			companyID, pieceID, externalReferenceID, externalReference)
+			err = h.Service.DBService.UpdateExternalReference(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, utils.ToFirestoreMap(externalReference))
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "DELETE":
@@ -81,29 +64,29 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nDELETE EXTERNAL REFERENCE")
+		logger.Infoln("\nDELETE ExternalReference")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		split_url := strings.Split(r.URL.Path[1:], "/")
-		companyID := split_url[0]
-		pieceID := split_url[2]
-		externalReferenceID := split_url[4]
 		decoder := json.NewDecoder(r.Body)
 		var body map[string][]string
 		err := decoder.Decode(&body)
 		switch {
 		case err == io.EOF:
-			h.Service.DBService.DeleteExternalReference(
-				h.Service.Env.ProjectId,
-				companyID, pieceID, externalReferenceID)
+			err = h.Service.DBService.DeleteExternalReference(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		case err != nil:
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			if fields, ok := body["fields"]; ok {
-				h.Service.DBService.DeleteExternalReferenceFields(
-				h.Service.Env.ProjectId,
-				companyID, pieceID, externalReferenceID, fields)
+				err = h.Service.DBService.DeleteExternalReferenceFields(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, fields)
+				if err != nil {
+					// TODO render error message with retry option
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
 			}
 		}
 	}
