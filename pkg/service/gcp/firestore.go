@@ -157,7 +157,7 @@ func (f *FirestoreService) DeleteCompany(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func (f *FirestoreService) DeletePiece(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func (f *FirestoreService) DeleteEvent(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -656,7 +656,7 @@ func (f *FirestoreService) DeleteExternalReference(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -822,7 +822,7 @@ func (f *FirestoreService) DeleteSecurityDeclaration(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -988,7 +988,7 @@ func (f *FirestoreService) DeleteShipment(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -1154,7 +1154,7 @@ func (f *FirestoreService) DeleteTransportMovement(
 	}
 	defer client.Close()
 
-	err = DeleteDocumentAndSubcollections(ctx, client, role, docPath)
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
 	if err != nil {
 		return err
 	}
@@ -1179,6 +1179,31 @@ func (f *FirestoreService) DeleteTransportMovementFields(
 	defer client.Close()
 
 	err = DeleteDocumentFields(ctx, client, role, docPath, fields)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteCollectionRecursiveGivenPath(
+	projectID,
+	role,
+	colPath string,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	colRef := client.Collection(colPath)
+
+	err = DeleteCollectionRecursiveGivenRef(ctx, client, role, colRef)
 	if err != nil {
 		return err
 	}
@@ -1361,7 +1386,7 @@ func UpdateDocument(
 	return nil
 }
 
-func DeleteDocumentAndSubcollections(
+func DeleteDocumentRecursiveGivenPath(
 	ctx context.Context,
 	client *firestore.Client,
 	role,
@@ -1376,6 +1401,40 @@ func DeleteDocumentAndSubcollections(
 		return err
 	}
 
+	DeleteDocumentRecursiveGivenRef(ctx, client, role, docRef)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteCollectionRecursiveGivenPath(
+	ctx context.Context,
+	client *firestore.Client,
+	role,
+	colPath string,
+) (
+	error,
+) {
+	colRef := client.Collection(colPath)
+
+	err := DeleteCollectionRecursiveGivenRef(ctx, client, role, colRef)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteDocumentRecursiveGivenRef(
+	ctx context.Context,
+	client *firestore.Client,
+	role string,
+	docRef *firestore.DocumentRef,
+) (
+	error,
+) {
 	iter := docRef.Collections(ctx)
 	for {
 		collRef, err := iter.Next()
@@ -1385,57 +1444,40 @@ func DeleteDocumentAndSubcollections(
 		if err != nil {
 			return err
 		}
-		DeleteCollection(ctx, client, role, collRef)
+		DeleteCollectionRecursiveGivenRef(ctx, client, role, collRef)
 	}
 
-	_, err = docRef.Delete(ctx)
+	_, err := docRef.Delete(ctx)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func DeleteCollection(
+func DeleteCollectionRecursiveGivenRef(
 	ctx context.Context,
 	client *firestore.Client,
 	role string,
-	ref *firestore.CollectionRef,
+	colRef *firestore.CollectionRef,
 ) (
 	error,
 ) {
+	iter := colRef.Documents(ctx)
 	for {
-		// Get a batch of documents
-		iter := ref.Limit(100).Documents(ctx)
-		numDeleted := 0
-
-		// Iterate through the documents, adding
-		// a delete operation for each one to a
-		// WriteBatch.
-		batch := client.Batch()
-		for {
-			doc, err := iter.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				return err
-			}
-
-			batch.Delete(doc.Ref)
-			numDeleted++
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
 		}
-
-		// If there are no documents to delete,
-		// the process is over.
-		if numDeleted == 0 {
-			return nil
+		if err != nil {
+			return err
 		}
-
-		_, err := batch.Commit(ctx)
+		err = DeleteDocumentRecursiveGivenRef(ctx, client, role, doc.Ref)
 		if err != nil {
 			return err
 		}
 	}
+
+	return nil
 }
 
 func DeleteDocumentFields(

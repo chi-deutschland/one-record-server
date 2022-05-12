@@ -1,0 +1,22 @@
+{
+    "path": "companies/samsung/pieces/piece307/securityDeclaration",
+    "id": "SecurityDeclaration",
+    "issuedBy": {
+        "id": "Person"
+    },
+    "otherRegulatedEntity": {
+        "id": "RegulatedEntity"
+    },
+    "receivedFrom": {
+        "id": "RegulatedEntity"
+    },
+    "regulatedEntityIssuer": {
+        "id": "RegulatedEntity"
+    },
+    "additionalSecurityInformation": "info",
+    "groundsForExemption": "grounds",
+    "issuedOn": "date",
+    "otherScreeningMethods": ["Method2", "Method3"],
+    "screeningMethod": "Method1",
+    "securityStatus": "status"
+}

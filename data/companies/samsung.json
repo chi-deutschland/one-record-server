@@ -1,0 +1,22 @@
+{
+    "path": "companies",
+    "id": "samsung",
+    "name": "Samsung Electronics",
+    "type": "shipper",
+    "role": "shipper",
+    "branch": {
+    "id": "de_schwalbach",
+    "branchName": "Samsung Electronics Germany",
+    "location": {
+        "address": {
+        "city_name": "Schwalbach",
+        "country": "Germany",
+        "id": "de_schwalbach",
+        "postal_code": "65824",
+        "street": "Am Kronberger Hang 6"
+        },
+        "id": "de_samsung_house",
+        "name": "Samsung House"
+    }
+    }
+}

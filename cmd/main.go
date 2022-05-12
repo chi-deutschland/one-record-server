@@ -67,53 +67,57 @@ func main() {
 	router.Use(mux.CORSMethodMiddleware(router))
 
 	// Define HandlerFunc for all endpoints here
-	rootHandler := handler.NewCompaniesHandler(svc)
-	router.HandleFunc("/", rootHandler.Handler).
-		Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+	companiesHandler := handler.NewCompaniesHandler(svc)
+	router.HandleFunc("/companies", companiesHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	companyHandler := handler.NewCompanyHandler(svc)
-	router.HandleFunc("/{company}", companyHandler.Handler).
+	router.HandleFunc("/companies/{company}", companyHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	piecesHandler := handler.NewPiecesHandler(svc)
-	router.HandleFunc("/{company}/pieces", piecesHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces", piecesHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	pieceHandler := handler.NewPieceHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}", pieceHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}", pieceHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	eventsHandler := handler.NewEventsHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/events", eventsHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/events", eventsHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	eventHandler := handler.NewEventHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/events/{event}", eventHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/events/{event}", eventHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	externalReferencesHandler := handler.NewExternalReferencesHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/externalReferences", externalReferencesHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/externalReferences", externalReferencesHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	externalReferenceHandler := handler.NewExternalReferenceHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/externalReferences/{externalReference}", externalReferenceHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/externalReferences/{externalReference}", externalReferenceHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	transportMovementsHandler := handler.NewTransportMovementsHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/transportMovements", transportMovementsHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/transportMovements", transportMovementsHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	transportMovementHandler := handler.NewTransportMovementHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/transportMovements/{transportMovement}", transportMovementHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/transportMovements/{transportMovement}", transportMovementHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	securityDeclarationHandler := handler.NewSecurityDeclarationHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/securityDeclaration", securityDeclarationHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/securityDeclaration", securityDeclarationHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	shipmentHandler := handler.NewShipmentHandler(svc)
-	router.HandleFunc("/{company}/pieces/{piece}/shipment", shipmentHandler.Handler).
+	router.HandleFunc("/companies/{company}/pieces/{piece}/shipment", shipmentHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
+	dataHandler := handler.NewDataHandler(svc)
+	router.HandleFunc("/data", dataHandler.Handler).
+	Methods(http.MethodPost, http.MethodDelete, http.MethodOptions)
 
 	srv := &http.Server{
 		Handler:      router,

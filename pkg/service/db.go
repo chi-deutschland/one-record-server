@@ -61,4 +61,6 @@ type DBService interface {
 	UpdateTransportMovement( projectID, role, docPath string, updates utils.FirestoreMap) (error)
 	DeleteTransportMovement( projectID, role, docPath string) (error)
 	DeleteTransportMovementFields( projectID, role, docPath string, fields []string) (error)
+
+	DeleteCollectionRecursiveGivenPath(projectID, role, colPath string) (error)
 }

@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-const base = "/companies"
+const base = ""
 
 func PathMultipleEntries(url string) string {
 	return strings.Trim(base + url, "/")
