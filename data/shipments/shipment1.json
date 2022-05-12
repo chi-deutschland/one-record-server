@@ -1,28 +1,30 @@
 {
     "path": "companies/samsung/pieces/piece307/shipment",
-    "id": "Shipment",
-    "containedPieces": [
-        {
-            "id": "ContainedPiece1"
-        }
-    ],
-    "deliveryLocation": {
-        "id": "Location"
-    },
-    "externalReferences": [
-        {
-            "id": "Ref1"
-        }
-    ],
-    "freightForwarder": {
-        "id": "Company"
-    },
-    "shipper": {
-        "id": "Company"
-    },
-    "deliveryDate": "date",
-    "goodsDescription": "desc",
-    "incoterms": "terms",
-    "totalPieceCount": 2,
-    "totalSLAC": 1
+    "obj": {
+        "id": "Shipment",
+        "containedPieces": [
+            {
+                "id": "ContainedPiece1"
+            }
+        ],
+        "deliveryLocation": {
+            "id": "Location"
+        },
+        "externalReferences": [
+            {
+                "id": "Ref1"
+            }
+        ],
+        "freightForwarder": {
+            "id": "Company"
+        },
+        "shipper": {
+            "id": "Company"
+        },
+        "deliveryDate": "date",
+        "goodsDescription": "desc",
+        "incoterms": "terms",
+        "totalPieceCount": 2,
+        "totalSLAC": 1
+    }
 }

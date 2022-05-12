@@ -1,24 +1,26 @@
 {
     "path": "companies/samsung/pieces/piece307/transportMovements",
-    "id": "movement1",
-    "arrivalLocation": {
-        "id": "location"
-    },
-    "departureLocation": {
-        "id": "location"
-    },
-    "externalReferences": [
-        {
-            "id": "ref1"
-        }
-    ],
-    "transportedPieces": [
-        {
-            "id": "piece1"
-        }
-    ],
-    "fuelType": "type",
-    "seal": "seal",
-    "transportIdentifier": "identifier",
-    "unplannedStop": "stop"
+    "obj": {
+        "id": "movement1",
+        "arrivalLocation": {
+            "id": "location"
+        },
+        "departureLocation": {
+            "id": "location"
+        },
+        "externalReferences": [
+            {
+                "id": "ref1"
+            }
+        ],
+        "transportedPieces": [
+            {
+                "id": "piece1"
+            }
+        ],
+        "fuelType": "type",
+        "seal": "seal",
+        "transportIdentifier": "identifier",
+        "unplannedStop": "stop"
+    }
 }

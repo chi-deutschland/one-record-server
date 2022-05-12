@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+    "io/ioutil"
 
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
@@ -69,12 +70,38 @@ func GetFiles(dir, ext string) (files []string) {
 	return files
 }
 
-type ObjPath struct {
-	Path string `json:"path"`
-}
-
 func CreateData(h *DataHandler) error {
 	err := CreateCompanies(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreatePieces(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreateEvents(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreateExternalReferences(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreateSecurityDeclarations(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreateShipments(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreateTransportMovements(h)
 	if err != nil {
 		return err
 	}
@@ -92,19 +119,254 @@ func CreateCompanies(h *DataHandler) error {
 		}
 		defer f.Close()
 
-		decoder := json.NewDecoder(f)
-		var company model.Company
-		var objPath ObjPath
-		err = decoder.Decode(&company)
-		if err != nil {
-			return err
-		}
-		err = decoder.Decode(&objPath)
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
 		if err != nil {
 			return err
 		}
 
-		_, err = h.Service.DBService.AddCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, objPath.Path, company.ID, company)
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var company model.Company
+		err = json.Unmarshal(objmap["obj"], &company)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, company.ID, company)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreatePieces(h *DataHandler) error {
+	files := GetFiles("data/pieces", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var piece model.Piece
+		err = json.Unmarshal(objmap["obj"], &piece)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddPiece(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, piece.ID, piece)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateEvents(h *DataHandler) error {
+	files := GetFiles("data/events", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var event model.Event
+		err = json.Unmarshal(objmap["obj"], &event)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, event.ID, event)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateExternalReferences(h *DataHandler) error {
+	files := GetFiles("data/externalReferences", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var externalReference model.ExternalReference
+		err = json.Unmarshal(objmap["obj"], &externalReference)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddExternalReference(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, externalReference.ID, externalReference)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateSecurityDeclarations(h *DataHandler) error {
+	files := GetFiles("data/securityDeclarations", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var securityDeclaration model.SecurityDeclaration
+		err = json.Unmarshal(objmap["obj"], &securityDeclaration)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, securityDeclaration.ID, securityDeclaration)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateShipments(h *DataHandler) error {
+	files := GetFiles("data/shipments", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var shipment model.Shipment
+		err = json.Unmarshal(objmap["obj"], &shipment)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddShipment(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, shipment.ID, shipment)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateTransportMovements(h *DataHandler) error {
+	files := GetFiles("data/transportMovements", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var transportMovement model.TransportMovement
+		err = json.Unmarshal(objmap["obj"], &transportMovement)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddTransportMovement(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, transportMovement.ID, transportMovement)
 		if err != nil {
 			return err
 		}
