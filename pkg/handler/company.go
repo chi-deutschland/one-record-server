@@ -54,6 +54,7 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			err = h.Service.DBService.UpdateCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, utils.ToFirestoreMap(company))
 			if err != nil {
+				h.Service.FCM.SendTopicNotification(path, "Updated")
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}

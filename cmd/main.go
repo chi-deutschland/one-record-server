@@ -38,10 +38,16 @@ func main() {
 		logrus.Panicf("can`t initialize GCP Firestore service: %s", err)
 	}
 
+	fcm, err := gcp.NewFCM()
+	if err != nil {
+		logrus.Panicf("can`t initialize FCM client: %s", err)
+	}
+
 	svc := builder.NewServiceBuilder().
 		WithEnv(envVars).
 		WithGcpSecretManager(secretManager).
 		WithGcpFirestore(dbService).
+		WithFCM(fcm).
 		Build()
 
 	fmt.Printf("v%+v", svc)
@@ -118,6 +124,10 @@ func main() {
 	dataHandler := handler.NewDataHandler(svc)
 	router.HandleFunc("/data", dataHandler.Handler).
 	Methods(http.MethodPost, http.MethodDelete, http.MethodOptions)
+
+	subscriptionHandler := handler.NewSubscriptionHandler(svc)
+	router.HandleFunc("/sub", subscriptionHandler.Handler).
+	Methods(http.MethodPost, http.MethodOptions)
 
 	srv := &http.Server{
 		Handler:      router,

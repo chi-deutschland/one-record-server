@@ -27,6 +27,11 @@ func (s *ServiceBuilder) WithGcpFirestore(firestore service.DBService) *ServiceB
 	return s
 }
 
+func (s *ServiceBuilder) WithFCM(fcm service.FCM) *ServiceBuilder {
+	s.service.FCM = fcm
+	return s
+}
+
 func (s *ServiceBuilder) Build() *service.Service {
 	return s.service
 }
