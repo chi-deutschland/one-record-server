@@ -30,10 +30,14 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		company, err := h.Service.DBService.GetCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+			if err != nil {
+		logrus.Panicf("can`t subscribe a topic: %s",err)
+	}
+		h.Service.FCM.SendTopicNotification("company", "GET")
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-		} else {
+			} else {
 			json.NewEncoder(w).Encode(company)
 		}
 

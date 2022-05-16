@@ -25,6 +25,7 @@ func init() {
 	if err := env.Parse(&envVars); err != nil {
 		logrus.Panicf("can`t load .env config: %s", err)
 	}
+	fmt.Printf("%v", envVars.Auth)
 }
 
 func main() {
@@ -40,8 +41,9 @@ func main() {
 
 	fcm, err := gcp.NewFCM()
 	if err != nil {
-		logrus.Panicf("can`t initialize FCM client: %s", err)
+		logrus.Panicf("can`t subscribe: %s", err)
 	}
+
 
 	svc := builder.NewServiceBuilder().
 		WithEnv(envVars).
@@ -50,7 +52,6 @@ func main() {
 		WithFCM(fcm).
 		Build()
 
-	fmt.Printf("v%+v", svc)
 
 	headerAuth, err := utils.NewAuthHeaderSecretValues(svc)
 	if err != nil {

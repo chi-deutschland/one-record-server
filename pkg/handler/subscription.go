@@ -7,6 +7,7 @@ import (
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"fmt"
 )
 
 type SubscriptionHandler struct {
@@ -27,18 +28,23 @@ func (h *SubscriptionHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		})
 		logger.Infoln("\nPOST Subscription")
 		logger.Infof("Received request with params %#v", r.URL.Path)
-
+		
 		decoder := json.NewDecoder(r.Body)
 		var body SubscriptionRequest
 		err := decoder.Decode(&body)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-		} else {
-			_, err := h.Service.FCM.Subscribe(body.Topic, []string{body.Token})
+			} else {
+			fmt.Printf("\n%#v",body)
+			res, err := h.Service.FCM.Subscribe(body.Topic, []string{body.Token})
+			fmt.Printf("\n-->%#v",res)
+			fmt.Printf("\n%#v\n",err)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+			} else {
+				json.NewEncoder(w).Encode(res)
 			}
 		}
 	}
