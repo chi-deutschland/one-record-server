@@ -9,6 +9,8 @@ import (
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
+	"github.com/Meschkov/jsonld"
+    "io/ioutil"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -30,15 +32,30 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		company, err := h.Service.DBService.GetCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
-			if err != nil {
-		logrus.Panicf("can`t subscribe a topic: %s",err)
-	}
+		if err != nil {
+			logrus.Panicf("can`t subscribe a topic: %s",err)
+		}
 		h.Service.FCM.SendTopicNotification("company", "GET")
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			} else {
-			json.NewEncoder(w).Encode(company)
+		} else {
+			var data []byte
+			if r.Header.Get(("form")) == "expanded" {
+				data, err = jsonld.MarshalExpanded(company)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			} else if r.Header.Get(("form")) == "compacted" {
+				data, err = jsonld.MarshalCompacted(company)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			}
+			_, err = w.Write(data)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "PATCH":
@@ -49,9 +66,12 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		logger.Infoln("\nPATCH Company")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		decoder := json.NewDecoder(r.Body)
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		var company model.Company
-		err := decoder.Decode(&company)
+		err = jsonld.UnmarshalCompacted(body, &company)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)

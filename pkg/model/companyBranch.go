@@ -1,7 +1,8 @@
 package model
 
 type CompanyBranch struct {
-	ID         string   `firestore:"id" json:"id,omitempty"`
-	BranchName string   `firestore:"branchName,omitempty" json:"branchName,omitempty"`
-	Location   *Location `firestore:"location,omitempty" json:"location,omitempty"`
+    ID         string       `firestore:"id"                     jsonld:"@id"`
+    Type       string       `firestore:"type"                   jsonld:"@type" default:"https://onerecord.iata.org/cargo#CompanyBranch"`
+    BranchName string       `firestore:"branchName,omitempty"   jsonld:"https://onerecord.iata.org/cargo#companyBranch#branchName"`
+    Location   Location     `firestore:"location,omitempty"     jsonld:"https://onerecord.iata.org/cargo#companyBranch#location"`
 }
