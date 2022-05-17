@@ -13,8 +13,18 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function App() {
   const [notification, setNotification] = useState({ title: '', body: '' });
   const [isTokenFound, setTokenFound] = useState(false);
-  fetchToken(setTokenFound);
   useEffect(() => {
+    async function fetchMyAPI() {
+      await fetchToken(setTokenFound);
+    }
+
+    fetchMyAPI();
+  }, []);
+  useEffect(() => {
+    async function fetchMyAPI() {
+      await fetchToken(setTokenFound);
+    }
+    fetchMyAPI();
     console.log(isTokenFound);
   }, [isTokenFound]);
   onMessageListener()
