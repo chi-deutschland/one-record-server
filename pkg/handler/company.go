@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-
+    "io/ioutil"
+	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
-	"github.com/Meschkov/jsonld"
-    "io/ioutil"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )

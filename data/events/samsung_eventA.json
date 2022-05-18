@@ -1,0 +1,119 @@
+{
+    "path": "companies/samsung/pieces/piece307/events",
+    "obj": {
+        "@id": "eventA",
+        "@type": "https://onerecord.iata.org/cargo#Event",
+        "https://onerecord.iata.org/cargo#event#linkedPiece": {
+            "@id": "piece307",
+            "@type": "https://onerecord.iata.org/cargo#Piece",
+            "https://onerecord.iata.org/cargo#piece#containedPieces": [
+                
+            ],
+            "https://onerecord.iata.org/cargo#piece#companyIdentifier": "samsung",
+            "https://onerecord.iata.org/cargo#piece#otherParty": {
+                "@id": "otherParty",
+                "@type": "https://onerecord.iata.org/cargo#Company",
+                "https://onerecord.iata.org/cargo#company#companyName": "Samsung Electronics",
+                "https://onerecord.iata.org/cargo#company#role": "shipper",
+                "https://onerecord.iata.org/cargo#company#branch": {
+                    "@id": "de_schwalbach",
+                    "@type": "https://onerecord.iata.org/cargo#CompanyBranch",
+                    "https://onerecord.iata.org/cargo#companyBranch#branchName": "Samsung Electronics Germany",
+                    "https://onerecord.iata.org/cargo#companyBranch#location": {
+                        "@id": "de_samsung_house",
+                        "@type": "https://onerecord.iata.org/cargo#Location",
+                        "https://onerecord.iata.org/cargo#location#locationName": "Samsung House",
+                        "https://onerecord.iata.org/cargo#location#address": {
+                            "@id": "de_schwalbach",
+                            "@type": "https://onerecord.iata.org/cargo#Address",
+                            "https://onerecord.iata.org/cargo#address#cityName": "Schwalbach",
+                            "https://onerecord.iata.org/cargo#address#country": "Germany",
+                            "https://onerecord.iata.org/cargo#address#postalCode": "65824",
+                            "https://onerecord.iata.org/cargo#address#street": "Am Kronberger Hang 6"
+                        }
+                    }
+                }
+            },
+            "https://onerecord.iata.org/cargo#piece#shipper": {
+                "@id": "shipper",
+                "@type": "https://onerecord.iata.org/cargo#Company",
+                "https://onerecord.iata.org/cargo#company#companyName": "Samsung Electronics",
+                "https://onerecord.iata.org/cargo#company#role": "shipper",
+                "https://onerecord.iata.org/cargo#company#branch": {
+                    "@id": "de_schwalbach",
+                    "@type": "https://onerecord.iata.org/cargo#CompanyBranch",
+                    "https://onerecord.iata.org/cargo#companyBranch#branchName": "Samsung Electronics Germany",
+                    "https://onerecord.iata.org/cargo#companyBranch#location": {
+                        "@id": "de_samsung_house",
+                        "@type": "https://onerecord.iata.org/cargo#Location",
+                        "https://onerecord.iata.org/cargo#location#locationName": "Samsung House",
+                        "https://onerecord.iata.org/cargo#location#address": {
+                            "@id": "de_schwalbach",
+                            "@type": "https://onerecord.iata.org/cargo#Address",
+                            "https://onerecord.iata.org/cargo#address#cityName": "Schwalbach",
+                            "https://onerecord.iata.org/cargo#address#country": "Germany",
+                            "https://onerecord.iata.org/cargo#address#postalCode": "65824",
+                            "https://onerecord.iata.org/cargo#address#street": "Am Kronberger Hang 6"
+                        }
+                    }
+                }
+            },
+            "https://onerecord.iata.org/cargo#piece#coload": true,
+            "https://onerecord.iata.org/cargo#piece#declaredValueForCarriage": "100$",
+            "https://onerecord.iata.org/cargo#piece#goodsDescription": "GoodsDescription",
+            "https://onerecord.iata.org/cargo#piece#nvdForCarriage": true,
+            "https://onerecord.iata.org/cargo#piece#nvdForCustoms": false,
+            "https://onerecord.iata.org/cargo#piece#packagedeIdentifier": "1234",
+            "https://onerecord.iata.org/cargo#piece#shippingMarks": "DXK34",
+            "https://onerecord.iata.org/cargo#piece#slac": 1,
+            "https://onerecord.iata.org/cargo#piece#stackable": true,
+            "https://onerecord.iata.org/cargo#piece#turnable": true,
+            "https://onerecord.iata.org/cargo#piece#upid": "U123"
+        },
+        "https://onerecord.iata.org/cargo#event#location": {
+            "@id": "de_samsung_house",
+            "@type": "https://onerecord.iata.org/cargo#Location",
+            "https://onerecord.iata.org/cargo#location#locationName": "Samsung House",
+            "https://onerecord.iata.org/cargo#location#address": {
+                "@id": "de_schwalbach",
+                "@type": "https://onerecord.iata.org/cargo#Address",
+                "https://onerecord.iata.org/cargo#address#cityName": "Schwalbach",
+                "https://onerecord.iata.org/cargo#address#country": "Germany",
+                "https://onerecord.iata.org/cargo#address#postalCode": "65824",
+                "https://onerecord.iata.org/cargo#address#street": "Am Kronberger Hang 6"
+            }
+        },
+        "https://onerecord.iata.org/cargo#event#performedBy": {
+            "@id": "samsung",
+            "@type": "https://onerecord.iata.org/cargo#Company",
+            "https://onerecord.iata.org/cargo#company#companyName": "Samsung Electronics",
+            "https://onerecord.iata.org/cargo#company#role": "shipper",
+            "https://onerecord.iata.org/cargo#company#branch": {
+                "@id": "de_schwalbach",
+                "@type": "https://onerecord.iata.org/cargo#CompanyBranch",
+                "https://onerecord.iata.org/cargo#companyBranch#branchName": "Samsung Electronics Germany",
+                "https://onerecord.iata.org/cargo#companyBranch#location": {
+                    "@id": "de_samsung_house",
+                    "@type": "https://onerecord.iata.org/cargo#Location",
+                    "https://onerecord.iata.org/cargo#location#locationName": "Samsung House",
+                    "https://onerecord.iata.org/cargo#location#address": {
+                        "@id": "de_schwalbach",
+                        "@type": "https://onerecord.iata.org/cargo#Address",
+                        "https://onerecord.iata.org/cargo#address#cityName": "Schwalbach",
+                        "https://onerecord.iata.org/cargo#address#country": "Germany",
+                        "https://onerecord.iata.org/cargo#address#postalCode": "65824",
+                        "https://onerecord.iata.org/cargo#address#street": "Am Kronberger Hang 6"
+                    }
+                }
+        }
+        },
+        "https://onerecord.iata.org/cargo#event#performedByPerson": {
+            "@id": "person",
+            "@type": "https://onerecord.iata.org/cargo#Person"
+        },
+        "https://onerecord.iata.org/cargo#event#dateTime": "2012-10-31 15:50:13.793654 +0000 UTC",
+        "https://onerecord.iata.org/cargo#event#eventCode": "code",
+        "https://onerecord.iata.org/cargo#event#eventName": "name",
+        "https://onerecord.iata.org/cargo#event#eventTypeIndicator": "indicator"
+    }
+}

@@ -355,6 +355,172 @@ func (f *FirestoreService) DeletePieceFields(
 	return nil
 }
 
+func (f *FirestoreService) GetItems(
+	projectID,
+	role,
+	colPath string,
+) (
+	items []model.Item,
+	err error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return items, err
+	}
+	defer client.Close()
+
+	iter, err := GetDocuments(ctx, client, role, colPath)
+	if err != nil {
+		return items, err
+	}
+	
+	for {
+		var item model.Item
+
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		} else if err != nil {
+			return items, err
+		}
+
+		if err := doc.DataTo(&item); err != nil {
+			return items, err
+		}
+
+		items = append(items, item)
+	}
+
+	return items, nil
+}
+
+func (f *FirestoreService) GetItem(
+	projectID,
+	role,
+	docPath string,
+) (
+	item model.Item,
+	err error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return item, err
+	}
+	defer client.Close()
+
+	doc, err := GetDocument(ctx, client, role, docPath)
+	if err != nil {
+		return item, err
+	}
+
+	if err := doc.DataTo(&item); err != nil {
+		return item, err
+	}
+
+	return item, nil
+}
+
+func (f *FirestoreService) AddItem(
+	projectID,
+	role,
+	colPath,
+	id string,
+	item model.Item,
+) (
+	ID string,
+	err error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return ID, err
+	}
+	defer client.Close()
+
+	ID, err = AddDocumentWithCollection(ctx, client, role, colPath, id, item)
+	if err != nil {
+		return ID, err
+	}
+
+	return ID, nil
+}
+
+func (f *FirestoreService) UpdateItem(
+	projectID,
+	role,
+	docPath string,
+	updates utils.FirestoreMap,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	err = UpdateDocument(ctx, client, role, docPath, updates)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteItem(
+	projectID,
+	role,
+	docPath string,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteItemFields(
+	projectID,
+	role,
+	docPath string,
+	fields []string,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	err = DeleteDocumentFields(ctx, client, role, docPath, fields)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 
 func (f *FirestoreService) GetEvents(
 	projectID,
@@ -831,6 +997,172 @@ func (f *FirestoreService) DeleteSecurityDeclaration(
 }
 
 func (f *FirestoreService) DeleteSecurityDeclarationFields(
+	projectID,
+	role,
+	docPath string,
+	fields []string,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	err = DeleteDocumentFields(ctx, client, role, docPath, fields)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) GetRegulatedEntities(
+	projectID,
+	role,
+	colPath string,
+) (
+	regulatedEntities []model.RegulatedEntity,
+	err error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return regulatedEntities, err
+	}
+	defer client.Close()
+
+	iter, err := GetDocuments(ctx, client, role, colPath)
+	if err != nil {
+		return regulatedEntities, err
+	}
+	
+	for {
+		var regulatedEntity model.RegulatedEntity
+
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		} else if err != nil {
+			return regulatedEntities, err
+		}
+
+		if err := doc.DataTo(&regulatedEntity); err != nil {
+			return regulatedEntities, err
+		}
+
+		regulatedEntities = append(regulatedEntities, regulatedEntity)
+	}
+
+	return regulatedEntities, nil
+}
+
+func (f *FirestoreService) GetRegulatedEntity(
+	projectID,
+	role,
+	docPath string,
+) (
+	regulatedEntity model.RegulatedEntity,
+	err error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return regulatedEntity, err
+	}
+	defer client.Close()
+
+	doc, err := GetDocument(ctx, client, role, docPath)
+	if err != nil {
+		return regulatedEntity, err
+	}
+
+	if err := doc.DataTo(&regulatedEntity); err != nil {
+		return regulatedEntity, err
+	}
+
+	return regulatedEntity, nil
+}
+
+func (f *FirestoreService) AddRegulatedEntity(
+	projectID,
+	role,
+	colPath,
+	id string,
+	regulatedEntity model.RegulatedEntity,
+) (
+	ID string,
+	err error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return ID, err
+	}
+	defer client.Close()
+
+	ID, err = AddDocumentWithCollection(ctx, client, role, colPath, id, regulatedEntity)
+	if err != nil {
+		return ID, err
+	}
+
+	return ID, nil
+}
+
+func (f *FirestoreService) UpdateRegulatedEntity(
+	projectID,
+	role,
+	docPath string,
+	updates utils.FirestoreMap,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	err = UpdateDocument(ctx, client, role, docPath, updates)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteRegulatedEntity(
+	projectID,
+	role,
+	docPath string,
+) (
+	error,
+) {
+	// Set up client
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	err = DeleteDocumentRecursiveGivenPath(ctx, client, role, docPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FirestoreService) DeleteRegulatedEntityFields(
 	projectID,
 	role,
 	docPath string,

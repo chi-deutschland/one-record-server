@@ -3,7 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-
+	"io/ioutil"
+	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
@@ -32,7 +33,22 @@ func (h *EventsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			json.NewEncoder(w).Encode(events)
+			var data []byte
+			if r.Header.Get(("form")) == "expanded" {
+				data, err = jsonld.MarshalExpanded(events)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			} else if r.Header.Get(("form")) == "compacted" {
+				data, err = jsonld.MarshalCompacted(events)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			}
+			_, err = w.Write(data)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "POST":
@@ -43,9 +59,12 @@ func (h *EventsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		logger.Infoln("\nPOST Event")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		decoder := json.NewDecoder(r.Body)
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		var event model.Event
-		err := decoder.Decode(&event)
+		err = jsonld.UnmarshalCompacted(body, &event)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)

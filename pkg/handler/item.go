@@ -14,11 +14,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type EventHandler struct {
+type ItemHandler struct {
 	Service *service.Service
 }
 
-func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
@@ -27,22 +27,22 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nGET Event")
+		logger.Debugln("\nGET Item")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		event, err := h.Service.DBService.GetEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+		item, err := h.Service.DBService.GetItem(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
 			var data []byte
 			if r.Header.Get(("form")) == "expanded" {
-				data, err = jsonld.MarshalExpanded(event)
+				data, err = jsonld.MarshalExpanded(item)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
 			} else if r.Header.Get(("form")) == "compacted" {
-				data, err = jsonld.MarshalCompacted(event)
+				data, err = jsonld.MarshalCompacted(item)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
@@ -58,20 +58,20 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nPATCH Event")
+		logger.Infoln("\nPATCH Item")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		var event model.Event
-		err = jsonld.UnmarshalCompacted(body, &event)
+		var item model.Item
+		err = jsonld.UnmarshalCompacted(body, &item)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			err = h.Service.DBService.UpdateEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, utils.ToFirestoreMap(event))
+			err = h.Service.DBService.UpdateItem(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, utils.ToFirestoreMap(item))
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -83,7 +83,7 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nDELETE Event")
+		logger.Infoln("\nDELETE Item")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		decoder := json.NewDecoder(r.Body)
@@ -91,7 +91,7 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&body)
 		switch {
 		case err == io.EOF:
-			err = h.Service.DBService.DeleteEvent(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+			err = h.Service.DBService.DeleteItem(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -101,7 +101,7 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			if fields, ok := body["fields"]; ok {
-				err = h.Service.DBService.DeleteEventFields(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, fields)
+				err = h.Service.DBService.DeleteItemFields(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, fields)
 				if err != nil {
 					// TODO render error message with retry option
 					http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -111,8 +111,8 @@ func (h *EventHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewEventHandler(svc *service.Service) *EventHandler {
-	return &EventHandler{Service: svc}
+func NewItemHandler(svc *service.Service) *ItemHandler {
+	return &ItemHandler{Service: svc}
 }
 
-var _ onerecordhttp.ContextHandler = (*EventHandler)(nil)
+var _ onerecordhttp.ContextHandler = (*ItemHandler)(nil)

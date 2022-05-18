@@ -1,13 +1,14 @@
 package model
 
 type Event struct {
-	ID         			string 		`firestore:"id" json:"id,omitempty"`
-	LinkedPiece			Piece		`firestore:"linkedPiece,omitempty" json:"linkedPiece,omitempty"`
-	Location			Location	`firestore:"location,omitempty" json:"location,omitempty"`
-	PerformedBy			Company		`firestore:"performedBy,omitempty" json:"performedBy,omitempty"`
-	PerformedByPerson	Person		`firestore:"performedByPerson,omitempty" json:"performedByPerson,omitempty"`
-	DateTime			string		`firestore:"dateTime,omitempty" json:"dateTime,omitempty"`
-	EventCode			string		`firestore:"eventCode,omitempty" json:"eventCode,omitempty"`
-	EventName			string		`firestore:"eventName,omitempty" json:"eventName,omitempty"`
-	EventTypeIndicator	string		`firestore:"eventTypeIndicator,omitempty" json:"eventTypeIndicator,omitempty"`
-}
+    ID                     string         `firestore:"id"                                               jsonld:"@id"`
+    Type                   string         `firestore:"type"                                             jsonld:"@type" default:"https://onerecord.iata.org/cargo#Event"`
+    LinkedPiece            Piece          `firestore:"linkedPiece,omitempty"                            jsonld:"https://onerecord.iata.org/cargo#event#linkedPiece"`
+    Location               Location       `firestore:"location,omitempty"                               jsonld:"https://onerecord.iata.org/cargo#event#location"`
+    PerformedBy            Company        `firestore:"performedBy,omitempty"                            jsonld:"https://onerecord.iata.org/cargo#event#performedBy"`
+    PerformedByPerson      Person         `firestore:"performedByPerson,omitempty"                      jsonld:"https://onerecord.iata.org/cargo#event#performedByPerson"`
+    DateTime               string         `firestore:"dateTime,omitempty"                               jsonld:"https://onerecord.iata.org/cargo#event#dateTime"`
+    EventCode              string         `firestore:"eventCode,omitempty"                              jsonld:"https://onerecord.iata.org/cargo#event#eventCode"`
+    EventName              string         `firestore:"eventName,omitempty"                              jsonld:"https://onerecord.iata.org/cargo#event#eventName"`
+    EventTypeIndicator     string         `firestore:"eventTypeIndicator,omitempty"                     jsonld:"https://onerecord.iata.org/cargo#event#eventTypeIndicator"`
+}                       

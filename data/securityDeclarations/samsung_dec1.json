@@ -1,0 +1,17 @@
+{
+    "path": "companies/samsung/pieces/piece307/securityDeclaration",
+    "obj": {
+        "@id": "SecurityDeclaration",
+        "@type": "https://onerecord.iata.org/cargo#SecurityDeclaration",
+        "https://onerecord.iata.org/cargo#securityDeclaration#issuedBy": {
+            "@id": "Person",
+            "@type": "https://onerecord.iata.org/cargo#Person"
+        },
+        "https://onerecord.iata.org/cargo#securityDeclaration#additionalSecurityInformation": "info",
+        "https://onerecord.iata.org/cargo#securityDeclaration#groundsForExemption": "grounds",
+        "https://onerecord.iata.org/cargo#securityDeclaration#issuedOn": "date",
+        "https://onerecord.iata.org/cargo#securityDeclaration#otherScreeningMethods": ["Method2", "Method3"],
+        "https://onerecord.iata.org/cargo#securityDeclaration#screeningMethod": "Method1",
+        "https://onerecord.iata.org/cargo#securityDeclaration#securityStatus": "status"
+    }
+}

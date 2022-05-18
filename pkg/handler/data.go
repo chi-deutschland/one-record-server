@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
     "io/ioutil"
-
+	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
@@ -133,7 +133,7 @@ func CreateCompanies(h *DataHandler) error {
 		}
 
 		var company model.Company
-		err = json.Unmarshal(objmap["obj"], &company)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &company)
 		if err != nil {
 			return err
 		}
@@ -171,7 +171,7 @@ func CreatePieces(h *DataHandler) error {
 		}
 
 		var piece model.Piece
-		err = json.Unmarshal(objmap["obj"], &piece)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &piece)
 		if err != nil {
 			return err
 		}
@@ -209,7 +209,7 @@ func CreateEvents(h *DataHandler) error {
 		}
 
 		var event model.Event
-		err = json.Unmarshal(objmap["obj"], &event)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &event)
 		if err != nil {
 			return err
 		}
@@ -247,7 +247,7 @@ func CreateExternalReferences(h *DataHandler) error {
 		}
 
 		var externalReference model.ExternalReference
-		err = json.Unmarshal(objmap["obj"], &externalReference)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &externalReference)
 		if err != nil {
 			return err
 		}
@@ -285,7 +285,7 @@ func CreateSecurityDeclarations(h *DataHandler) error {
 		}
 
 		var securityDeclaration model.SecurityDeclaration
-		err = json.Unmarshal(objmap["obj"], &securityDeclaration)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &securityDeclaration)
 		if err != nil {
 			return err
 		}
@@ -323,7 +323,7 @@ func CreateShipments(h *DataHandler) error {
 		}
 
 		var shipment model.Shipment
-		err = json.Unmarshal(objmap["obj"], &shipment)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &shipment)
 		if err != nil {
 			return err
 		}
@@ -361,7 +361,7 @@ func CreateTransportMovements(h *DataHandler) error {
 		}
 
 		var transportMovement model.TransportMovement
-		err = json.Unmarshal(objmap["obj"], &transportMovement)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &transportMovement)
 		if err != nil {
 			return err
 		}

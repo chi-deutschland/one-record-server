@@ -22,6 +22,14 @@ type DBService interface {
 	DeletePiece( projectID, role, docPath string) (error)
 	DeletePieceFields( projectID, role, docPath string, fields []string) (error)
 
+	GetItems(projectID, role, colPath string) ([]model.Item, error)
+
+	GetItem(projectID, role, docPath string) (model.Item, error)
+	AddItem(projectID, role, colPath, id string, item model.Item) (ID string, err error)
+	UpdateItem( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteItem( projectID, role, docPath string) (error)
+	DeleteItemFields( projectID, role, docPath string, fields []string) (error)
+
 	GetEvents(projectID, role, colPath string) ([]model.Event, error)
 
 	GetEvent(projectID, role, docPath string) (model.Event, error)
@@ -45,6 +53,14 @@ type DBService interface {
 	UpdateSecurityDeclaration( projectID, role, docPath string, updates utils.FirestoreMap) (error)
 	DeleteSecurityDeclaration( projectID, role, docPath string) (error)
 	DeleteSecurityDeclarationFields( projectID, role, docPath string, fields []string) (error)
+
+	GetRegulatedEntities(projectID, role, colPath string) ([]model.RegulatedEntity, error)
+
+	GetRegulatedEntity(projectID, role, docPath string) (model.RegulatedEntity, error)
+	AddRegulatedEntity(projectID, role, colPath, id string, regulatedEntity model.RegulatedEntity) (ID string, err error)
+	UpdateRegulatedEntity( projectID, role, docPath string, updates utils.FirestoreMap) (error)
+	DeleteRegulatedEntity( projectID, role, docPath string) (error)
+	DeleteRegulatedEntityFields( projectID, role, docPath string, fields []string) (error)
 
 	GetShipments(projectID, role, colPath string) ([]model.Shipment, error)
 

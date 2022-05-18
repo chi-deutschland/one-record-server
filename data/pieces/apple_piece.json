@@ -1,0 +1,24 @@
+{
+    "path": "companies/apple/pieces",
+    "obj": {
+        "@id": "8f5xxd",
+        "@type": "https://onerecord.iata.org/cargo#Piece",
+        "https://onerecord.iata.org/cargo#piece#companyIdentifier": "apple",
+        "https://onerecord.iata.org/cargo#piece#shipper": {
+            "@id": "https://1r.portal.com/apple",
+            "@type": "https://onerecord.iata.org/cargo#Company"
+        },
+        "https://onerecord.iata.org/cargo#piece#coload": true,
+        "https://onerecord.iata.org/cargo#piece#declaredValueForCustoms": "6895 USD",
+        "https://onerecord.iata.org/cargo#piece#goodsDescription": "320 iPhones",
+        "https://onerecord.iata.org/cargo#piece#grossWeight": "85 kg",
+        "https://onerecord.iata.org/cargo#piece#nvdForCarriage": true,
+        "https://onerecord.iata.org/cargo#piece#nvdForCustoms": false,
+        "https://onerecord.iata.org/cargo#piece#packagedeIdentifier": "1234",
+        "https://onerecord.iata.org/cargo#piece#shippingMarks": "DXK34",
+        "https://onerecord.iata.org/cargo#piece#slac": 1,
+        "https://onerecord.iata.org/cargo#piece#stackable": true,
+        "https://onerecord.iata.org/cargo#piece#turnable": true,
+        "https://onerecord.iata.org/cargo#piece#upid": "8f5xxd"
+    }
+}

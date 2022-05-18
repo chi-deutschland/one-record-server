@@ -12,11 +12,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type CompaniesHandler struct {
+type ItemsHandler struct {
 	Service *service.Service
 }
 
-func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
+func (h *ItemsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	path := PathMultipleEntries(r.URL.Path)
 	switch r.Method {
 	case "GET":
@@ -25,22 +25,22 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Debugln("\nGET Companies")
+		logger.Debugln("\nGET Items")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		companies, err := h.Service.DBService.GetCompanies(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+		items, err := h.Service.DBService.GetItems(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
 			var data []byte
 			if r.Header.Get(("form")) == "expanded" {
-				data, err = jsonld.MarshalExpanded(companies)
+				data, err = jsonld.MarshalExpanded(items)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
 			} else if r.Header.Get(("form")) == "compacted" {
-				data, err = jsonld.MarshalCompacted(companies)
+				data, err = jsonld.MarshalCompacted(items)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
@@ -56,20 +56,20 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			"role":       h.Service.Env.ServerRole,
 			"request_id": uuid.New().String(),
 		})
-		logger.Infoln("\nPOST Company")
+		logger.Infoln("\nPOST Item")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		var company model.Company
-		err = jsonld.UnmarshalCompacted(body, &company)
+		var item model.Item
+		err = jsonld.UnmarshalCompacted(body, &item)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			ID, err := h.Service.DBService.AddCompany(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, company.ID, company)
+			ID, err := h.Service.DBService.AddItem(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, item.ID, item)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,8 +81,8 @@ func (h *CompaniesHandler) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewCompaniesHandler(svc *service.Service) *CompaniesHandler {
-	return &CompaniesHandler{Service: svc}
+func NewItemsHandler(svc *service.Service) *ItemsHandler {
+	return &ItemsHandler{Service: svc}
 }
 
-var _ onerecordhttp.ContextHandler = (*CompaniesHandler)(nil)
+var _ onerecordhttp.ContextHandler = (*ItemsHandler)(nil)

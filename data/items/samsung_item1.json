@@ -1,0 +1,38 @@
+{
+    "path": "companies/samsung/pieces/piece307/items",
+    "obj": {
+        "@id": "item1",
+        "@type": "https://onerecord.iata.org/cargo#Item",
+        "https://onerecord.iata.org/cargo#item#isInPiece": {
+            "@id": "piece307",
+            "@type": "https://onerecord.iata.org/cargo#Piece"
+        },
+        "https://onerecord.iata.org/cargo#item#otherIdentifier": "",
+        "https://onerecord.iata.org/cargo#item#product": {
+            "@id": "product",
+            "@type": "https://onerecord.iata.org/cargo#Product",
+            "https://onerecord.iata.org/cargo#product#manufacturer": {
+                "@id": "manufacturer",
+                "@type": "https://onerecord.iata.org/cargo#Company"
+            },
+            "https://onerecord.iata.org/cargo#product#otherIdentifier": "",
+            "https://onerecord.iata.org/cargo#product#commodityItemNumber": "",
+            "https://onerecord.iata.org/cargo#product#hsCode": "",
+            "https://onerecord.iata.org/cargo#product#hsCommodityDescription": "",
+            "https://onerecord.iata.org/cargo#product#hsCommodityName": "",
+            "https://onerecord.iata.org/cargo#product#hsType": "",
+            "https://onerecord.iata.org/cargo#product#productDescription": "",
+            "https://onerecord.iata.org/cargo#product#productIdentifier": ""
+        },
+        "https://onerecord.iata.org/cargo#item#productionCountry": "China",
+        "https://onerecord.iata.org/cargo#item#quantity": 1,
+        "https://onerecord.iata.org/cargo#item#targetCountry": "",
+        "https://onerecord.iata.org/cargo#item#unitPrice": "",
+        "https://onerecord.iata.org/cargo#item#weight": "",
+        "https://onerecord.iata.org/cargo#item#batchNumber": "",
+        "https://onerecord.iata.org/cargo#item#lotNumber": "",
+        "https://onerecord.iata.org/cargo#item#productExpiryDate": "",
+        "https://onerecord.iata.org/cargo#item#productionDate": "",
+        "https://onerecord.iata.org/cargo#item#quantityForUnitPrice": ""
+    }
+}

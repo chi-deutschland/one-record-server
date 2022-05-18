@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-
+    "io/ioutil"
+	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
@@ -34,7 +35,22 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			json.NewEncoder(w).Encode(externalReference)
+			var data []byte
+			if r.Header.Get(("form")) == "expanded" {
+				data, err = jsonld.MarshalExpanded(externalReference)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			} else if r.Header.Get(("form")) == "compacted" {
+				data, err = jsonld.MarshalCompacted(externalReference)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			}
+			_, err = w.Write(data)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "PATCH":
@@ -44,10 +60,13 @@ func (h *ExternalReferenceHandler) Handler(w http.ResponseWriter, r *http.Reques
 		})
 		logger.Infoln("\nPATCH ExternalReference")
 		logger.Infof("Received request with params %#v", r.URL.Path)
-
-		decoder := json.NewDecoder(r.Body)
+		
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		var externalReference model.ExternalReference
-		err := decoder.Decode(&externalReference)
+		err = jsonld.UnmarshalCompacted(body, &externalReference)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)

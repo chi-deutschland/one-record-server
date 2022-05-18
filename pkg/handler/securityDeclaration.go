@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-
+    "io/ioutil"
+	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
@@ -34,7 +35,22 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			json.NewEncoder(w).Encode(securityDeclaration)
+			var data []byte
+			if r.Header.Get(("form")) == "expanded" {
+				data, err = jsonld.MarshalExpanded(securityDeclaration)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			} else if r.Header.Get(("form")) == "compacted" {
+				data, err = jsonld.MarshalCompacted(securityDeclaration)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			}
+			_, err = w.Write(data)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 
 	case "POST":
@@ -45,9 +61,12 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 		logger.Infoln("\nPOST SecurityDeclaration")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		decoder := json.NewDecoder(r.Body)
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		var securityDeclaration model.SecurityDeclaration
-		err := decoder.Decode(&securityDeclaration)
+		err = jsonld.UnmarshalCompacted(body, &securityDeclaration)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,9 +89,12 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 		logger.Infoln("\nPATCH SecurityDeclaration")
 		logger.Infof("Received request with params %#v", r.URL.Path)
 
-		decoder := json.NewDecoder(r.Body)
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		var securityDeclaration model.SecurityDeclaration
-		err := decoder.Decode(&securityDeclaration)
+		err = jsonld.UnmarshalCompacted(body, &securityDeclaration)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)

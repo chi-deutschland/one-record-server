@@ -90,6 +90,14 @@ func main() {
 	router.HandleFunc("/companies/{company}/pieces/{piece}", pieceHandler.Handler).
 	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
+	itemsHandler := handler.NewItemsHandler(svc)
+	router.HandleFunc("/companies/{company}/pieces/{piece}/items", itemsHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+
+	itemHandler := handler.NewItemHandler(svc)
+	router.HandleFunc("/companies/{company}/pieces/{piece}/items/{item}", itemHandler.Handler).
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
 	eventsHandler := handler.NewEventsHandler(svc)
 	router.HandleFunc("/companies/{company}/pieces/{piece}/events", eventsHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
@@ -117,6 +125,22 @@ func main() {
 	securityDeclarationHandler := handler.NewSecurityDeclarationHandler(svc)
 	router.HandleFunc("/companies/{company}/pieces/{piece}/securityDeclaration", securityDeclarationHandler.Handler).
 	Methods(http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
+	regulatedEntitiesHandler := handler.NewRegulatedEntitiesHandler(svc)
+	router.HandleFunc("/regulatedEntities", regulatedEntitiesHandler.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+
+	regulatedEntityHandler := handler.NewRegulatedEntityHandler(svc)
+	router.HandleFunc("/regulatedEntities/{regulatedEntity}", regulatedEntityHandler.Handler).
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
+
+	regulatedEntitiesHandlerSecurityDeclaration := handler.NewRegulatedEntitiesHandler(svc)
+	router.HandleFunc("/companies/{company}/pieces/{piece}/regulatedEntities", regulatedEntitiesHandlerSecurityDeclaration.Handler).
+	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
+
+	regulatedEntityHandlerSecurityDeclaration := handler.NewRegulatedEntityHandler(svc)
+	router.HandleFunc("/companies/{company}/pieces/{piece}/regulatedEntities/{regulatedEntity}", regulatedEntityHandlerSecurityDeclaration.Handler).
+	Methods(http.MethodGet, http.MethodPatch, http.MethodDelete, http.MethodOptions)
 
 	shipmentHandler := handler.NewShipmentHandler(svc)
 	router.HandleFunc("/companies/{company}/pieces/{piece}/shipment", shipmentHandler.Handler).
