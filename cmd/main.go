@@ -39,23 +39,23 @@ func main() {
 		logrus.Panicf("can`t initialize GCP Firestore service: %s", err)
 	}
 
-	fcm, err := gcp.NewFCM()
-	if err != nil {
-		logrus.Panicf("can`t subscribe: %s", err)
-	}
+	// fcm, err := gcp.NewFCM()
+	// if err != nil {
+	// 	logrus.Panicf("can`t subscribe: %s", err)
+	// }
 
-	ps, err := gcp.NewPubSub()
-	if err != nil {
-		logrus.Panicf("can`t subscribe: %s", err)
-	}
+	// ps, err := gcp.NewPubSub()
+	// if err != nil {
+	// 	logrus.Panicf("can`t subscribe: %s", err)
+	// }
 
 
 	svc := builder.NewServiceBuilder().
 		WithEnv(envVars).
 		WithGcpSecretManager(secretManager).
 		WithGcpFirestore(dbService).
-		WithFCM(fcm).
-		WithPS(ps).
+		// WithFCM(fcm).
+		// WithPS(ps).
 		Build()
 
 
@@ -94,7 +94,7 @@ func main() {
 
 	multiplePiecesHandler := handler.NewMultiplePiecesHandler(svc)
 	router.HandleFunc("/pieces", multiplePiecesHandler.Handler).
-	Methods(http.MethodGet, http.MethodOptions)
+	Methods(http.MethodPost, http.MethodOptions)
 
 	pieceHandler := handler.NewPieceHandler(svc)
 	router.HandleFunc("/companies/{company}/pieces/{piece}", pieceHandler.Handler).
