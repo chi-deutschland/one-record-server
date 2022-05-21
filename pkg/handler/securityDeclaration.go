@@ -65,20 +65,32 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+
+		var objmap map[string]json.RawMessage
+		err = json.Unmarshal(body, &objmap)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["pieceId"], &path)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
 		var securityDeclaration model.SecurityDeclaration
-		err = jsonld.UnmarshalCompacted(body, &securityDeclaration)
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &securityDeclaration)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		ID, err := h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, colPath, id, securityDeclaration)
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			ID, err := h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, colPath, id, securityDeclaration)
-			if err != nil {
-				// TODO render error message with retry option
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-			} else {
-				json.NewEncoder(w).Encode(map[string]string{"id": ID})
-				w.WriteHeader(http.StatusCreated)
-			}
+			json.NewEncoder(w).Encode(map[string]string{"id": ID})
+			w.WriteHeader(http.StatusCreated)
 		}
 
 	case "PATCH":
