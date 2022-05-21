@@ -5,9 +5,9 @@ import (
 	"io"
 	"net/http"
     "io/ioutil"
-	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
+	"github.com/chi-deutschland/one-record-server/pkg/jsonld"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
 	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
 	"github.com/google/uuid"
@@ -34,7 +34,7 @@ func (h *CompanyHandler) Handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logrus.Panicf("can`t subscribe a topic: %s",err)
 		}
-		h.Service.FCM.SendTopicNotification("company", "GET")
+		// h.Service.FCM.SendTopicNotification("company", "GET")
 		if err != nil {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)

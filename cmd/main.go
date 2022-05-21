@@ -39,17 +39,17 @@ func main() {
 		logrus.Panicf("can`t initialize GCP Firestore service: %s", err)
 	}
 
-	fcm, err := gcp.NewFCM()
-	if err != nil {
-		logrus.Panicf("can`t subscribe: %s", err)
-	}
+	// fcm, err := gcp.NewFCM()
+	// if err != nil {
+	// 	logrus.Panicf("can`t subscribe: %s", err)
+	// }
 
 
 	svc := builder.NewServiceBuilder().
 		WithEnv(envVars).
 		WithGcpSecretManager(secretManager).
 		WithGcpFirestore(dbService).
-		WithFCM(fcm).
+		// WithFCM(fcm).
 		Build()
 
 
