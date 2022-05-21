@@ -2,14 +2,19 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
-    "io/ioutil"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/Meschkov/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
-	"github.com/chi-deutschland/one-record-server/pkg/utils/conv"
+	utils "github.com/chi-deutschland/one-record-server/pkg/utils/conv"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -72,8 +77,8 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		var path string
-		err = json.Unmarshal(objmap["pieceId"], &path)
+		var pieceId string
+		err = json.Unmarshal(objmap["pieceId"], &pieceId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -82,15 +87,46 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 		err = jsonld.UnmarshalCompacted(objmap["obj"], &securityDeclaration)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-		ID, err := h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, colPath, id, securityDeclaration)
-		if err != nil {
-			// TODO render error message with retry option
-			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			json.NewEncoder(w).Encode(map[string]string{"id": ID})
-			w.WriteHeader(http.StatusCreated)
+
+			ID, err := h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, colPath, id, securityDeclaration)
+			if err != nil {
+				// TODO render error message with retry option
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			} else {
+
+				json.NewEncoder(w).Encode(map[string]string{"id": ID})
+
+				// PATCH to Piece Server
+
+				client := &http.Client{
+					Timeout: time.Second * 10,
+				}
+
+				data := url.Values{}
+				data.Set("https://onerecord.iata.org/cargo#piece#securityDeclaration", r.URL.RequestURI())
+
+				l := len(r.URL.Path) - 21
+
+				s := r.URL.Path[:l]
+				fmt.Println("http://localhost:8081/" + s)
+				req, err := http.NewRequest("PATCH", "http://localhost:8081/"+s, strings.NewReader(data.Encode()))
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+				req.Header.Set("form", "compacted")
+				req.Header.Set("x-auth-name", "dr6YEPzk6zPyLG2GXvwF3ZcdBYUyTRq8MwHM8hJBfWY9sXCiGz")
+				response, err := client.Do(req)
+
+				// decoder := json.NewDecoder(response.Body)
+				var piece model.Piece
+				body, err := ioutil.ReadAll(response.Body)
+
+				jsonld.UnmarshalCompacted(body, &piece)
+				// Pub/Sub
+
+				w.WriteHeader(http.StatusCreated)
+			}
 		}
 
 	case "PATCH":

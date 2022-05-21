@@ -2,7 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"time"
+
 	"github.com/chi-deutschland/one-record-server/pkg/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
@@ -32,7 +35,24 @@ func (h *MultiplePiecesHandler) Handler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else if paths, ok := body["ids"]; ok {
 		for _, path := range paths {
-			piece, err := h.Service.DBService.GetPiece(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+			// piece, err := h.Service.DBService.GetPiece(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
+
+			client := &http.Client{
+				Timeout: time.Second * 10,
+			}
+			req, err := http.NewRequest("GET", path, nil)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			req.Header.Set("form", "compacted")
+			req.Header.Set("x-auth-name", "dr6YEPzk6zPyLG2GXvwF3ZcdBYUyTRq8MwHM8hJBfWY9sXCiGz")
+			response, err := client.Do(req)
+
+			// decoder := json.NewDecoder(response.Body)
+			var piece model.Piece
+			body, err := ioutil.ReadAll(response.Body)
+
+			jsonld.UnmarshalCompacted(body, &piece)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
