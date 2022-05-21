@@ -93,7 +93,7 @@ func main() {
 	Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
 
 	multiplePiecesHandler := handler.NewMultiplePiecesHandler(svc)
-	router.HandleFunc("/companies/{company}/pieces", multiplePiecesHandler.Handler).
+	router.HandleFunc("/pieces", multiplePiecesHandler.Handler).
 	Methods(http.MethodGet, http.MethodOptions)
 
 	pieceHandler := handler.NewPieceHandler(svc)
