@@ -12,6 +12,9 @@ const (
 	tagName      = "firestore"
 	tagOmitEmpty = "omitempty"
 	tagId		 = "id"
+	tagLdId		 = "@id"
+	tagType		 = "type"
+	tagLdType    = "@id"
 	delimiter    = ","
 )
 
@@ -73,7 +76,7 @@ func parseData(value interface{}) interface{} {
 }
 
 func setValue(firestoreMap FirestoreMap, tag string, value interface{}) {
-	if tag == "" || tag == "-" || value == nil || strings.HasPrefix(tag, tagId){
+	if tag == "" || tag == "-" || value == nil || strings.HasPrefix(tag, tagId) || strings.HasPrefix(tag, tagLdId) || strings.HasPrefix(tag, tagLdType) || strings.HasPrefix(tag, tagType){
 		return
 	}
 

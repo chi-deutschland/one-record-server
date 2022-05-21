@@ -106,6 +106,16 @@ func CreateData(h *DataHandler) error {
 		return err
 	}
 
+	err = CreateItems(h)
+	if err != nil {
+		return err
+	}
+
+	err = CreateRegulatedEntities(h)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -367,6 +377,82 @@ func CreateTransportMovements(h *DataHandler) error {
 		}
 
 		_, err = h.Service.DBService.AddTransportMovement(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, transportMovement.ID, transportMovement)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateRegulatedEntities(h *DataHandler) error {
+	files := GetFiles("data/regulatedEntities", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var regulatedEntity model.RegulatedEntity
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &regulatedEntity)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddRegulatedEntity(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, regulatedEntity.ID, regulatedEntity)
+		if err != nil {
+			return err
+		}
+    }
+
+	return nil
+}
+
+func CreateItems(h *DataHandler) error {
+	files := GetFiles("data/items", ".json")
+
+	for _, file := range files {
+        f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		var objmap map[string]json.RawMessage
+		data, _ := ioutil.ReadAll(f)
+		err = json.Unmarshal(data, &objmap)
+		if err != nil {
+			return err
+		}
+
+		var path string
+		err = json.Unmarshal(objmap["path"], &path)
+		if err != nil {
+			return err
+		}
+
+		var item model.Item
+		err = jsonld.UnmarshalCompacted(objmap["obj"], &item)
+		if err != nil {
+			return err
+		}
+
+		_, err = h.Service.DBService.AddItem(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path, item.ID, item)
 		if err != nil {
 			return err
 		}
