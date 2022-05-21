@@ -1,26 +1,31 @@
 {
     "path": "companies/samsung/pieces/piece307/transportMovements",
     "obj": {
-        "id": "movement1",
-        "arrivalLocation": {
-            "id": "location"
+        "@id": "movement",
+        "@type": "https://onerecord.iata.org/cargo#TransportMovement",
+        "https://onerecord.iata.org/cargo#transportMovement#arrivalLocation": {
+            "@id": "location",
+            "@type": "https://onerecord.iata.org/cargo#TransportMovement"
         },
-        "departureLocation": {
-            "id": "location"
+        "https://onerecord.iata.org/cargo#transportMovement#departureLocation": {
+            "id": "location",
+            "@type": "https://onerecord.iata.org/cargo#Location"
         },
-        "externalReferences": [
+        "https://onerecord.iata.org/cargo#transportMovement#externalReferences": [
             {
-                "id": "ref1"
+                "@id": "ref1",
+                "@type": "https://onerecord.iata.org/cargo#ExternalReference"
             }
         ],
-        "transportedPieces": [
+        "https://onerecord.iata.org/cargo#transportMovement#transportedPieces": [
             {
-                "id": "piece1"
+                "@id": "piece1",
+                "@type": "https://onerecord.iata.org/cargo#Piece"
             }
         ],
-        "fuelType": "type",
-        "seal": "seal",
-        "transportIdentifier": "identifier",
-        "unplannedStop": "stop"
+        "https://onerecord.iata.org/cargo#transportMovement#fuelType": "type",
+        "https://onerecord.iata.org/cargo#transportMovement#seal": "seal",
+        "https://onerecord.iata.org/cargo#transportMovement#transportIdentifier": "identifier",
+        "https://onerecord.iata.org/cargo#transportMovement#unplannedStop": "stop"
     }
 }
