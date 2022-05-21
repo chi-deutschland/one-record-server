@@ -5,6 +5,7 @@ type Service struct {
 	SecretManager SecretManager
 	DBService     DBService
 	FCM			  FCM
+	PS			  PS
 }
 
 func NewService() *Service {

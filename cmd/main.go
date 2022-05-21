@@ -1,6 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/caarlos0/env/v6"
 	"github.com/chi-deutschland/one-record-server/pkg/builder"
 	"github.com/chi-deutschland/one-record-server/pkg/handler"
@@ -10,10 +15,6 @@ import (
 	"github.com/chi-deutschland/one-record-server/pkg/utils"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"os"
-	"time"
-	"fmt"
 )
 
 var envVars service.Env
@@ -25,7 +26,6 @@ func init() {
 	if err := env.Parse(&envVars); err != nil {
 		logrus.Panicf("can`t load .env config: %s", err)
 	}
-	fmt.Printf("%v", envVars.Auth)
 }
 
 func main() {
@@ -44,12 +44,18 @@ func main() {
 		logrus.Panicf("can`t subscribe: %s", err)
 	}
 
+	ps, err := gcp.NewPubSub()
+	if err != nil {
+		logrus.Panicf("can`t subscribe: %s", err)
+	}
+
 
 	svc := builder.NewServiceBuilder().
 		WithEnv(envVars).
 		WithGcpSecretManager(secretManager).
 		WithGcpFirestore(dbService).
 		WithFCM(fcm).
+		WithPS(ps).
 		Build()
 
 
@@ -60,7 +66,7 @@ func main() {
 
 	logrus.WithFields(logrus.Fields{
 		"role": svc.Env.ServerRole,
-	}).Info("Server will start at :8080")
+	}).Info("Server will start at",svc.Env.Host)
 
 	fs := http.FileServer(http.Dir(svc.Env.Path.Static))
 	router := mux.NewRouter()
@@ -136,7 +142,7 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
+	fmt.Println(srv)
 	logrus.WithFields(logrus.Fields{
 		"role": svc.Env.ServerRole,
 	}).Fatal(srv.ListenAndServe())
