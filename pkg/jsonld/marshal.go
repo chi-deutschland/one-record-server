@@ -74,20 +74,8 @@ func MarshalExpanded(v any, opts ...Option) ([]byte, error) {
 	jsonldMap := map[string]interface{}{}
 	val := reflect.ValueOf(v)
 
-	if val.Kind() != reflect.Struct or  {
+	if val.Kind() != reflect.Struct {
 		return nil, errors.New("type unsupported by MarshalExpanded method")
-	}
-
-	if items.Kind() == reflect.Slice {
-		for i := 0; i < items.Len(); i++ {
-			item := items.Index(i)
-			if item.Kind() == reflect.Struct {
-				v := reflect.Indirect(item)
-				for j := 0; j < v.NumField(); j++ {
-					fmt.Println(v.Type().Field(j).Name, v.Field(j).Interface())
-				}
-			}
-		}
 	}
 
 	if val.Kind() == reflect.Ptr {
@@ -158,50 +146,72 @@ func MarshalCompacted(v any, opts ...Option) ([]byte, error) {
 	jsonldMap := map[string]interface{}{}
 	val := reflect.ValueOf(v)
 
-	// if val.Kind() != reflect.Struct {
-	// 	return nil, errors.New("type unsupported by MarshalCompacted method")
-	// }
+	isSlice := val.Kind() == reflect.Slice
+
+	if val.Kind() != reflect.Struct && !isSlice {
+		return nil, errors.New("type unsupported by MarshalExpanded method")
+	}
 
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
 
-	for i := 0; i < val.NumField(); i++ {
-		var fieldData interface{}
-		var err error
+	if isSlice {
+		var sliceData []interface{}
 
-		if !val.Field(i).CanInterface() {
-			// Skip unexported fields
-			continue
+		for i := 0; i < val.Len(); i++ {
+			elem := val.Index(i)
+			elemData, err := extractFieldData(elem, MarshalCompacted)
+			if err != nil {
+				return nil, err
+			}
+			sliceData = append(sliceData, elemData)
 		}
 
-		fieldData, err = extractFieldData(val.Field(i), MarshalCompacted)
+		// 2. Convert map[string]interface to []byte
+		compactedDocJson, err := json.Marshal(sliceData)
 		if err != nil {
 			return nil, err
 		}
+		return compactedDocJson, nil
+	} else {
+		for i := 0; i < val.NumField(); i++ {
+			var fieldData interface{}
+			var err error
+			elem := val.Field(i)
 
-		fieldTag := val.Type().Field(i).Tag.Get("jsonld")
+			if !elem.CanInterface() {
+				// Skip unexported fields
+				continue
+			}
 
-		if fieldTag == "" || fieldTag == "-" {
-			continue
+			fieldData, err = extractFieldData(elem, MarshalCompacted)
+			if err != nil {
+				return nil, err
+			}
+
+			fieldTag := val.Type().Field(i).Tag.Get("jsonld")
+
+			if fieldTag == "" || fieldTag == "-" {
+				continue
+			}
+
+			// Fixed JSON LD Type definition
+			if fieldTag == "@type" && val.Type().Field(i).Tag.Get("default") != "" {
+				jsonldMap[fieldTag] = val.Type().Field(i).Tag.Get("default")
+				continue
+			}
+
+			jsonldMap[fieldTag] = fieldData
 		}
 
-		// Fixed JSON LD Type definition
-		if fieldTag == "@type" && val.Type().Field(i).Tag.Get("default") != "" {
-			jsonldMap[fieldTag] = val.Type().Field(i).Tag.Get("default")
-			continue
+		// 2. Convert map[string]interface to []byte
+		compactedDocJson, err := json.Marshal(jsonldMap)
+		if err != nil {
+			return nil, err
 		}
-
-		jsonldMap[fieldTag] = fieldData
+		return compactedDocJson, nil
 	}
-
-	// 2. Convert map[string]interface to []byte
-	compactedDocJson, err := json.Marshal(jsonldMap)
-	if err != nil {
-		return nil, err
-	}
-
-	return compactedDocJson, nil
 }
 
 func MarshalContext(v any, c map[string]interface{}, opts ...Option) ([]byte, error) {

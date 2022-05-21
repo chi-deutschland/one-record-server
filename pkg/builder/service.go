@@ -32,6 +32,11 @@ func (s *ServiceBuilder) WithFCM(fcm service.FCM) *ServiceBuilder {
 	return s
 }
 
+func (s *ServiceBuilder) WithPS(ps service.PS) *ServiceBuilder {
+	s.service.PS= ps
+	return s
+}
+
 func (s *ServiceBuilder) Build() *service.Service {
 	return s.service
 }

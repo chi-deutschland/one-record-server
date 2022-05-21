@@ -19,7 +19,7 @@ type Piece struct {
     // PackagingType                  PackagingType
     // Parties                        []Party
     // ProductionCountry              ProductionCountry
-    // SecurityDeclaration               SecurityDeclaration                `firestore:"securityDeclaration,omitempty"      jsonld:"https://onerecord.iata.org/cargo#piece#securityDeclaration"`
+    SecurityDeclaration               SecurityDeclaration                `firestore:"securityDeclaration,omitempty"      jsonld:"https://onerecord.iata.org/cargo#piece#securityDeclaration"`
     // SecurityStatus                 SecurityDeclaration                `firestore:"securityStatus,omitempty"           jsonld:"https://onerecord.iata.org/cargo#piece#securityStatus"`
     // ServiceRequest                 ServiceRequest
     // Shipment                          Shipment                           `firestore:"shipment,omitempty"                 jsonld:"https://onerecord.iata.org/cargo#piece#shipment"`

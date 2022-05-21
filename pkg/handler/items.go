@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"io/ioutil"
-	"github.com/Meschkov/jsonld"
+	"github.com/chi-deutschland/one-record-server/pkg/jsonld"
 	"github.com/chi-deutschland/one-record-server/pkg/model"
 	"github.com/chi-deutschland/one-record-server/pkg/service"
 	onerecordhttp "github.com/chi-deutschland/one-record-server/pkg/transport/http"
@@ -33,17 +33,9 @@ func (h *ItemsHandler) Handler(w http.ResponseWriter, r *http.Request) {
 			// TODO render error message with retry option
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			var data []byte
-			if r.Header.Get(("form")) == "expanded" {
-				data, err = jsonld.MarshalExpanded(items)
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-				}
-			} else if r.Header.Get(("form")) == "compacted" {
-				data, err = jsonld.MarshalCompacted(items)
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-				}
+			data, err := jsonld.MarshalCompacted(items)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 			_, err = w.Write(data)
 			if err != nil {
