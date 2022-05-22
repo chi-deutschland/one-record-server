@@ -30,8 +30,8 @@ var _ service.FCM = (*FCM)(nil)
 
 func (f *FCM) SendTopicNotification(topic string, status string) (response string, err error) {
 	notification := &messaging.Notification{
-		Title: topic + " " + status,
-		Body:  "Body",
+		Title: topic,
+		Body:  status,
 	}
 
 	message := &messaging.Message{
@@ -61,7 +61,7 @@ func (f *FCM) Subscribe(topic string, tokens []string) (response *messaging.Topi
 func getClient() (ctx context.Context, client *messaging.Client, err error) {
 
 	opt := option.WithCredentialsFile("../one-record-firebase-adminsdk-l8dmp-98c472bf32.json")
-	app, err := firebase.NewApp(context.Background(), nil,opt)
+	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		logrus.Panicf("can`t subscribe a topic: %s", err)
 	}

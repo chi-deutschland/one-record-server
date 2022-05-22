@@ -82,22 +82,26 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-
+		fmt.Println("\n here 1")
 		var securityDeclaration model.SecurityDeclaration
 		err = jsonld.UnmarshalCompacted(objmap["obj"], &securityDeclaration)
+		fmt.Println("\n here 2", err)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
+			fmt.Println("\n here 3")
 
 			ID, err := h.Service.DBService.AddSecurityDeclaration(h.Service.Env.ProjectId, h.Service.Env.ServerRole, colPath, id, securityDeclaration)
 			if err != nil {
 				// TODO render error message with retry option
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
+				fmt.Println("\n here 4")
 
 				json.NewEncoder(w).Encode(map[string]string{"id": ID})
 
 				// PATCH to Piece Server
+				fmt.Println("\n here 5")
 
 				client := &http.Client{
 					Timeout: time.Second * 10,
@@ -106,14 +110,17 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 				data := url.Values{}
 				data.Set("https://onerecord.iata.org/cargo#piece#securityDeclaration", r.URL.RequestURI())
 
-				l := len(r.URL.Path) - 21
+				l := len(r.URL.Path) - 20
+				fmt.Println("\n here 6")
 
 				s := r.URL.Path[:l]
-				fmt.Println("http://localhost:8081/" + s)
-				req, err := http.NewRequest("PATCH", "http://localhost:8081/"+s, strings.NewReader(data.Encode()))
+				fmt.Println("http://localhost:8080/" + s)
+				req, err := http.NewRequest("PATCH", "http://localhost:8080/"+s, strings.NewReader(data.Encode()))
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
+				fmt.Println("\n here7")
+
 				req.Header.Set("form", "compacted")
 				req.Header.Set("x-auth-name", "dr6YEPzk6zPyLG2GXvwF3ZcdBYUyTRq8MwHM8hJBfWY9sXCiGz")
 				response, err := client.Do(req)
@@ -124,7 +131,9 @@ func (h *SecurityDeclarationHandler) Handler(w http.ResponseWriter, r *http.Requ
 
 				jsonld.UnmarshalCompacted(body, &piece)
 				// Pub/Sub
+				h.Service.PS.Publish("my-topic", "http://localhost:8081/"+s)
 
+				h.Service.FCM.SendTopicNotification("securityDeclaration", "http://security.provider.com/"+s)
 				w.WriteHeader(http.StatusCreated)
 			}
 		}

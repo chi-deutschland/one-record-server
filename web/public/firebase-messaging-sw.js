@@ -4,7 +4,7 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compa
 
 // Initialize the Firebase app in the service worker by passing the generated config
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FCM_API_KEY,
+  apiKey: 'AIzaSyBuHGzBCvxDAwN9H_FjJcEqRXWcXAt4seY',
   authDomain: 'one-record.firebaseapp.com',
   projectId: 'one-record',
   storageBucket: 'one-record.appspot.com',

@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, Unsubscribe } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FCM_API_KEY,
+  apiKey: 'AIzaSyBuHGzBCvxDAwN9H_FjJcEqRXWcXAt4seY',
   authDomain: 'one-record.firebaseapp.com',
   projectId: 'one-record',
   storageBucket: 'one-record.appspot.com',

@@ -7,10 +7,24 @@ import ScrollToTop from './components/ScrollToTop';
 import { useEffect, useState } from 'react';
 import { fetchToken, onMessageListener } from './utils/firebase';
 import toast, { Toaster } from 'react-hot-toast';
+import { AppCtx } from './pages/Subscribe';
+import React from 'react';
 
+export const LanguageContext = React.createContext({
+  language: { title: '', body: '' },
+  setLanguage: () => {},
+});
+
+export interface XXInterface {
+  title: string;
+  body: string;
+}
 // ----------------------------------------------------------------------
-
 export default function App() {
+  const setLanguage = (language: XXInterface) => {
+    setNotification(language);
+  };
+
   const [notification, setNotification] = useState({ title: '', body: '' });
   const [isTokenFound, setTokenFound] = useState(false);
   useEffect(() => {
@@ -20,6 +34,8 @@ export default function App() {
 
     fetchMyAPI();
   }, []);
+  const [n, setN] = React.useContext(AppCtx);
+
   useEffect(() => {
     async function fetchMyAPI() {
       await fetchToken(setTokenFound);
@@ -27,14 +43,6 @@ export default function App() {
     fetchMyAPI();
     console.log(isTokenFound);
   }, [isTokenFound]);
-  onMessageListener()
-    .then((payload: any) => {
-      setNotification({ title: payload.notification.title, body: payload.notification.body });
-      console.log('Received background message ', payload);
-
-      toast(`${payload.notification.title}: ${payload.notification.body}`);
-    })
-    .catch((err) => console.log('failed: ', err));
 
   return (
     <ThemeProvider>

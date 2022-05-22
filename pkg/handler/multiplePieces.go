@@ -34,7 +34,10 @@ func (h *MultiplePiecesHandler) Handler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else if paths, ok := body["ids"]; ok {
+		h.Service.FCM.SendTopicNotification("securityDeclaration", "http://security.provider.com/")
+
 		for _, path := range paths {
+
 			// piece, err := h.Service.DBService.GetPiece(h.Service.Env.ProjectId, h.Service.Env.ServerRole, path)
 
 			client := &http.Client{
