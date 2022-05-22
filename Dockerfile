@@ -1,5 +1,4 @@
 FROM golang:1.18 as builder
-
 ARG DOCKER_GIT_CREDENTIALS
 
 # Create and change to the app directory.
@@ -16,12 +15,27 @@ RUN apt-get install -y git
 
 RUN go mod download
 
+
 # Copy local code to the container image.
 COPY . ./
 
 # Build the binary.
 # -mod=readonly ensures immutable go.mod and go.sum in container builds.
 RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server
+
+FROM node:alpine as fb 
+#Specify a working directory
+WORKDIR /app
+COPY ./web/ /app
+#Copy the dependencies file
+RUN npm install
+#Copy remaining files
+COPY . .
+#Build the project for production
+RUN npm run build 
+
+
+#Copy production build files from builder phase to nginx
 
 # Use the official Alpine image for a lean production container.
 # https://hub.docker.com/_/alpine
@@ -30,8 +44,9 @@ FROM alpine:3
 RUN apk add --no-cache ca-certificates
 
 # Copy the binary to the production image from the builder stage.
+# COPY --from=builder /app/server /server
 COPY --from=builder /app/server /server
-COPY ./web/ /web
+COPY --from=fb /app/build /server/web/public/static
 
 # Run the web service on container startup.
 CMD ["/server"]

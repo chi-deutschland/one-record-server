@@ -1,0 +1,29 @@
+{
+    "path": "companies",
+    "obj": {
+        "@id": "apple",
+        "@type": "https://onerecord.iata.org/cargo#Company",
+        "https://onerecord.iata.org/cargo#company#companyName": "Apple Inc.",
+        "https://onerecord.iata.org/cargo#company#role": "shipper",
+        "https://onerecord.iata.org/cargo#company#branch": {
+            "@id": "headquarter",
+            "@type": "https://onerecord.iata.org/cargo#CompanyBranch",
+            "https://onerecord.iata.org/cargo#companyBranch#company": "1r.portal.com/apple",
+            "https://onerecord.iata.org/cargo#companyBranch#branchName": "Apple Headquarter",
+            "https://onerecord.iata.org/cargo#companyBranch#location": {
+                "@id": "usa_apple_cupertino",
+                "@type": "https://onerecord.iata.org/cargo#Location",
+                "https://onerecord.iata.org/cargo#location#locationName": "Apple Cupertino",
+                "https://onerecord.iata.org/cargo#location#address": {
+                    "@id": "usa_cupertino",
+                    "@type": "https://onerecord.iata.org/cargo#Address",
+                    "https://onerecord.iata.org/cargo#address#cityName": "Cupertino",
+                    "https://onerecord.iata.org/cargo#address#country": "USA",
+                    "https://onerecord.iata.org/cargo#address#postalCode": "95014",
+                    "https://onerecord.iata.org/cargo#address#street": "One Apple Park Way",
+                    "https://onerecord.iata.org/cargo#address#regionCode": "CA"
+                }
+            }
+        }
+    }
+}

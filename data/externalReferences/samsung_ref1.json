@@ -1,0 +1,52 @@
+{
+    "path": "companies/samsung/pieces/piece307/externalReferences",
+    "obj": {
+        "@id": "ref1",
+        "@type": "https://onerecord.iata.org/cargo#ExternalReference",
+        "https://onerecord.iata.org/cargo#externalReference#documentOriginator": {
+            "@id": "samsung",
+            "@type": "https://onerecord.iata.org/cargo#Company",
+            "https://onerecord.iata.org/cargo#company#companyName": "Samsung Electronics",
+            "https://onerecord.iata.org/cargo#company#role": "shipper",
+            "https://onerecord.iata.org/cargo#company#branch": {
+                "@id": "de_schwalbach",
+                "@type": "https://onerecord.iata.org/cargo#CompanyBranch",
+                "https://onerecord.iata.org/cargo#companyBranch#branchName": "Samsung Electronics Germany",
+                "https://onerecord.iata.org/cargo#companyBranch#location": {
+                    "@id": "de_samsung_house",
+                    "@type": "https://onerecord.iata.org/cargo#Location",
+                    "https://onerecord.iata.org/cargo#location#locationName": "Samsung House",
+                    "https://onerecord.iata.org/cargo#location#address": {
+                        "@id": "de_schwalbach",
+                        "@type": "https://onerecord.iata.org/cargo#Address",
+                        "https://onerecord.iata.org/cargo#address#cityName": "Schwalbach",
+                        "https://onerecord.iata.org/cargo#address#country": "Germany",
+                        "https://onerecord.iata.org/cargo#address#postalCode": "65824",
+                        "https://onerecord.iata.org/cargo#address#street": "Am Kronberger Hang 6"
+                    }
+                }
+            }
+        },
+        "https://onerecord.iata.org/cargo#externalReference#location": {
+            "@id": "de_samsung_house",
+            "@type": "https://onerecord.iata.org/cargo#Location",
+            "https://onerecord.iata.org/cargo#location#locationName": "Samsung House",
+            "https://onerecord.iata.org/cargo#location#address": {
+                "@id": "de_schwalbach",
+                "@type": "https://onerecord.iata.org/cargo#Address",
+                "https://onerecord.iata.org/cargo#address#cityName": "Schwalbach",
+                "https://onerecord.iata.org/cargo#address#country": "Germany",
+                "https://onerecord.iata.org/cargo#address#postalCode": "65824",
+                "https://onerecord.iata.org/cargo#address#street": "Am Kronberger Hang 6"
+            }
+        },
+        "https://onerecord.iata.org/cargo#externalReference#documentChecksum": "checksum",
+        "https://onerecord.iata.org/cargo#externalReference#documentId": "123",
+        "https://onerecord.iata.org/cargo#externalReference#documentLink": "url",
+        "https://onerecord.iata.org/cargo#externalReference#documentName": "name",
+        "https://onerecord.iata.org/cargo#externalReference#documentType": "pdf",
+        "https://onerecord.iata.org/cargo#externalReference#documentVersion": "v1",
+        "https://onerecord.iata.org/cargo#externalReference#expiryDate": "date",
+        "https://onerecord.iata.org/cargo#externalReference#validFrom": "date"
+    }
+}

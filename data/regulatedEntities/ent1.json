@@ -1,0 +1,14 @@
+{
+    "path": "regulatedEntities",
+    "obj": {
+        "@id": "ent1",
+        "@type": "https://onerecord.iata.org/cargo#RegulatedEntity",
+        "https://onerecord.iata.org/cargo#regulatedEntity#entity": {
+            "@id": "branch",
+            "@type": "https://onerecord.iata.org/cargo#Branch"
+        },
+        "https://onerecord.iata.org/cargo#regulatedEntity#expiryDate": "",
+        "https://onerecord.iata.org/cargo#regulatedEntity#regulatedEntityCategory": "",
+        "https://onerecord.iata.org/cargo#regulatedEntity#regulatedEntityIdentifier": ""
+    }
+}

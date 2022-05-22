@@ -1,0 +1,36 @@
+{
+    "path": "companies/samsung/pieces/piece307/shipment",
+    "obj": {
+        "@id": "shipment",
+        "@type": "https://onerecord.iata.org/cargo#Shipment",
+        "https://onerecord.iata.org/cargo#shipment#containedPieces": [
+            {
+                "@id": "ContainedPiece1",
+                "@type": "https://onerecord.iata.org/cargo#Piece"
+            }
+        ],
+        "https://onerecord.iata.org/cargo#shipment#deliveryLocation": {
+            "@id": "Location",
+            "@type": "https://onerecord.iata.org/cargo#Location"
+        },
+        "https://onerecord.iata.org/cargo#shipment#externalReferences": [
+            {
+                "@id": "Ref1",
+                "@type": "https://onerecord.iata.org/cargo#ExternalReference"
+            }
+        ],
+        "https://onerecord.iata.org/cargo#shipment#freightForwarder": {
+            "@id": "Company",
+            "@type": "https://onerecord.iata.org/cargo#Company"
+        },
+        "https://onerecord.iata.org/cargo#shipment#shipper": {
+            "@id": "Company",
+            "@type": "https://onerecord.iata.org/cargo#Company"
+        },
+        "https://onerecord.iata.org/cargo#shipment#deliveryDate": "date",
+        "https://onerecord.iata.org/cargo#shipment#goodsDescription": "desc",
+        "https://onerecord.iata.org/cargo#shipment#incoterms": "terms",
+        "https://onerecord.iata.org/cargo#shipment#totalPieceCount": 2,
+        "https://onerecord.iata.org/cargo#shipment#totalSLAC": 1
+    }
+}

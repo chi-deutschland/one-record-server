@@ -1,0 +1,24 @@
+{
+    "path": "companies/apple/pieces/8f5xxd/items",
+    "obj": {
+        "@id": "IMEI4223112",
+        "@type": "https://onerecord.iata.org/cargo#Item",
+        "https://onerecord.iata.org/cargo#item#isInPiece": {
+            "@id": "8f5xxd",
+            "@type": "https://onerecord.iata.org/cargo#Piece"
+        },
+        "https://onerecord.iata.org/cargo#item#otherIdentifier": "IMEI4223112",
+        "https://onerecord.iata.org/cargo#item#productionCountry": "China",
+        "https://onerecord.iata.org/cargo#item#batchNumber": "2022/08-55-n5",
+        "https://onerecord.iata.org/cargo#item#product": {
+            "@id": "iphone11_rev1233",
+            "@type": "https://onerecord.iata.org/cargo#Product",
+            "https://onerecord.iata.org/cargo#product#hsCode": "8517.12",
+            "https://onerecord.iata.org/cargo#product#hsCommodityDescription": "Telephone sets",
+            "https://onerecord.iata.org/cargo#product#hsCommodityName": "ELECTRICAL MACHINERY",
+            "https://onerecord.iata.org/cargo#product#hsType": "EU Harmonized System Code",
+            "https://onerecord.iata.org/cargo#product#productDescription": "iPhone 11",
+            "https://onerecord.iata.org/cargo#product#productIdentifier": "iP11"
+        }
+    }
+}

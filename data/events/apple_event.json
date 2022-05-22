@@ -1,0 +1,27 @@
+{
+    "path": "companies/samsung/pieces/piece307/events",
+    "obj": {
+        "@id": "event",
+        "@type": "https://onerecord.iata.org/cargo#Event",
+        "https://onerecord.iata.org/cargo#event#linkedPiece": {
+            "@id": "piece",
+            "@type": "https://onerecord.iata.org/cargo#Piece"
+        },
+        "https://onerecord.iata.org/cargo#event#location": {
+            "@id": "location",
+            "@type": "https://onerecord.iata.org/cargo#Location"
+        },
+        "https://onerecord.iata.org/cargo#event#performedBy": {
+            "@id": "apple",
+            "@type": "https://onerecord.iata.org/cargo#Company"
+        },
+        "https://onerecord.iata.org/cargo#event#performedByPerson": {
+            "@id": "person",
+            "@type": "https://onerecord.iata.org/cargo#Person"
+        },
+        "https://onerecord.iata.org/cargo#event#dateTime": "2012-10-31 15:50:13.793654 +0000 UTC",
+        "https://onerecord.iata.org/cargo#event#eventCode": "code",
+        "https://onerecord.iata.org/cargo#event#eventName": "name",
+        "https://onerecord.iata.org/cargo#event#eventTypeIndicator": "indicator"
+    }
+}
